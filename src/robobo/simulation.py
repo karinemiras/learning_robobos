@@ -166,10 +166,9 @@ class SimulationRobobo(Robobo):
         # print("sleeping for {}".format(duration))
 
         # busy waiting
-        # start_time = self.get_sim_time()
-        # while self.get_sim_time() - start_time < duration:
-        #print(millis/1000)
-        time.sleep(millis/1000)
+        start_time = self.get_sim_time()
+        while self.get_sim_time() - start_time < duration:
+            pass
         
         # Stop to move the wheels motor. Angular velocity.
         stopRightVelocity = stopLeftVelocity = 0
@@ -258,7 +257,7 @@ class SimulationRobobo(Robobo):
 
         return im_cv2
 
-    def set_phone_pan(self, pan_position, pan_speed):
+    def set_phone_pan(self, pan_position, pan_speed=100):
         """
         Command the robot to move the smartphone holder in the horizontal (pan) axis.
 
@@ -271,7 +270,7 @@ class SimulationRobobo(Robobo):
         self._vrep_set_joint_target_position(self._PanMotor, pan_position)
         self.wait_for_ping()
 
-    def set_phone_tilt(self, tilt_position, tilt_speed):
+    def set_phone_tilt(self, tilt_position, tilt_speed=100):
         """
         Command the robot to move the smartphone holder in the vertical (tilt) axis.
 
