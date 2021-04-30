@@ -52,7 +52,7 @@ class ForagingEnv(gym.Env):
                                             shape=(5,), dtype=np.float32)
 
         self.robot = robobo.SimulationRobobo().connect(address=self.config.robot_ip, port=self.config.robot_port)
-        time.sleep(0.1)
+        time.sleep(1)
 
     def reset(self):
 
@@ -60,6 +60,8 @@ class ForagingEnv(gym.Env):
         Important: the observation must be a numpy array
         :return: (np.array)
         """
+
+        print('food',self.total_success)
 
         self.exp_manager.register_episode()
 
@@ -133,14 +135,14 @@ class ForagingEnv(gym.Env):
         if color_y and color_x:
             sight = self.sight_reward
         else:
-            sight = 0
+            sight = -self.sight_reward
 
         sensors = np.append(sensors, [color_y, color_x])
 
         reward = food_reward + sight
 
-       # print(sensors, 'actions 'actions)
-       # print(sensors, 'food ' ,food_reward,  ' sight ',sight)
+        #print(sensors, 'actions 'actions)
+        #print(sensors, 'food ' ,food_reward,  ' sight ',sight)
 
         self.current_step += 1
 

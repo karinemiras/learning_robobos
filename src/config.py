@@ -26,7 +26,7 @@ class Config:
 
         self.parser.add_argument(
             '--episode-train-time',
-            default=150000, type=int,
+            default=200000, type=int,
             help="Maximum duration of an episode while training."
         )
 
@@ -38,13 +38,13 @@ class Config:
 
         self.parser.add_argument(
             '--checkpoints',
-            default=2, type=int,
+            default=4, type=int,
             help="N stages of training, so that experiments are saved after each stage."
         )
 
         self.parser.add_argument(
             '--checkpoint-timesteps',
-            default=500, type=int,
+            default=5000, type=int,
             help="Number of total time steps in each training stage."
         )
 

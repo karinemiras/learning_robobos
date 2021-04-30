@@ -5,7 +5,7 @@ import numpy as np
 import gym
 from gym import spaces
 from stable_baselines.td3.policies import MlpPolicy
-
+from stable_baselines.common.vec_env import DummyVecEnv
 from stable_baselines import TD3
 from stable_baselines.ddpg.noise import NormalActionNoise, OrnsteinUhlenbeckActionNoise
 import os
@@ -51,7 +51,7 @@ class RoboboEnv(gym.Env):
         self.min_pan = -600
         self.max_pan = 600
 
-        self.episode_length = 150000 #200000
+        self.episode_length = 250000 #200000
 
         #shorter?
 
@@ -70,6 +70,7 @@ class RoboboEnv(gym.Env):
 
 
         self.env = robobo.SimulationRobobo().connect(address='192.168.0.100', port=19997)
+        time.sleep(0.5)
 
     def reset(self):
         print('food',self.accumulated_food)
@@ -156,7 +157,7 @@ class RoboboEnv(gym.Env):
         if color_y and color_x:
             sight = 0.1
         else:
-            sight = 0
+            sight = -0.1
 
         observations = np.append(observations, [color_y, color_x])
 
@@ -207,7 +208,7 @@ class RoboboEnv(gym.Env):
         # test = 1 if avg_x and avg_y else 0
         # sim_time = self.env.get_sim_time()
         # cv2.imwrite(str(sim_time) + str(test)+ '.png', image)
-        #
+
 
         return avg_y, avg_x
 
@@ -242,35 +243,37 @@ start = 1
 # withcolor_slower_1 (not fully 200)
 # withcolor_slower_2
 
-name = 'withcolor_slower_3'
+#  20 / 100reward/m-0.1
 
-i = start
+name = 'experiments/default_experiment1/model_checkpoint_4'
 
-while i<= 10:
-
-    print("=====stage =====", i)
-
-    if i == 1:
-
-        model = TD3(MlpPolicy, env, action_noise=action_noise, verbose=1)
-    else:
-        print('load')
-        env2 = DummyVecEnv([lambda: env])
-        model = TD3.load(name, env=env2)
-
-        try:
-            model.learn(total_timesteps=5000)
-            model.save(name)
-            i += 1
-        except Exception as error:
-            print('ERROR loop: {}'.format(error))
-
+# i = start
+#
+# while i<= 3:
+#
+#     print("=====stage =====", i)
+#
+#     if i == 1:
+#
+#         model = TD3(MlpPolicy, env, action_noise=action_noise, verbose=1)
+#     else:
+#         print('load')
+#         env2 = DummyVecEnv([lambda: env])
+#         model = TD3.load(name, env=env2)
+#
+#     try:
+#         model.learn(total_timesteps=5000)
+#         model.save(name)
+#         i += 1
+#     except Exception as error:
+#         print('ERROR loop: {}'.format(error))
+#
 
 
 #########
 model = TD3.load(name)
 print('TESTE')
-for i in range(0, 5):
+for i in range(0, 10):
     obs = env.reset()
     done = False
     while not done:

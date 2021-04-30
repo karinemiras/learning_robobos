@@ -1,5 +1,11 @@
+import glob
 import pickle
 import pprint
+import os
+import time
+
+from stable_baselines.common.vec_env import DummyVecEnv
+from stable_baselines import TD3
 
 from info_log import Log
 
@@ -35,39 +41,78 @@ class ExperimentManager:
 
     def run(self):
 
-        # try to load checkpoitns here
+        # loads checkpoint if existent, or prepares new stage
+        self.prepare_stage()
 
+        # runs each stage of training
         while self.current_checkpoint < self.config.checkpoints:
 
-            self.current_checkpoint += 1
-
-            self.log.write(f'STARTING checkpoint {self.current_checkpoint}')
+            self.log.write(f'STARTING checkpoint {self.current_checkpoint+1}')
 
             try:
                 self.model.learn(total_timesteps=self.config.checkpoint_timesteps,
-                             log_interval=10)
+                                 log_interval=10)
+
+                self.current_checkpoint += 1
+
+                self.log.write(f'FINISHED checkpoint {self.current_checkpoint}')
+
+                self.save_checkpoint()
+
+                self.log.write(f'SAVED checkpoint {self.current_checkpoint}')
+
             except Exception as error:
-                self.log.write(f'ERROR loop: {error}')
+                self.log.write(f'ERROR: {error}')
+                time.sleep(1)
 
-            self.log.write(f'FINISHED checkpoint {self.current_checkpoint}')
-
-            self.save_checkpoint()
-
-            self.log.write(f'SAVED checkpoint {self.current_checkpoint}')
-
+        self.env.robot.stop_world()
 
     def save_checkpoint(self):
 
-        self.model.save(f'checkpoint_{self.current_checkpoint}')
+        dir = f'experiments/{self.config.experiment_name}'
 
-        #f = open(f'{folder}/individuals/individual_{self.id}.pkl', "wb")
-        f = open(f'checkpoint_{self.current_checkpoint}.pkl', "wb")
-        pickle.dump([self.results_episodes,
+        self.model.save(f'{dir}/model_checkpoint_{self.current_checkpoint}')
+
+        f = open(f'{dir}/status_checkpoint_{self.current_checkpoint}.pkl', 'wb')
+        pickle.dump([
+                     self.results_episodes,
                      self.current_checkpoint,
-                     self.current_episode], f)
+                     self.current_episode
+                     ], f)
 
-#pprint.pprint(experiment.results_episodes)
+    def prepare_stage(self):
 
+        dir = f'experiments/{self.config.experiment_name}'
+        if not os.path.exists(dir):
+            os.mkdir(dir)
 
+        else:
 
-# load checkpoint / fix exps name / if no checkpoint /if over
+            # recovers the latest non-corrupted checkpoint, if existent
+
+            checkpoints = []
+            for file in glob.glob(f'{dir}/status_checkpoint*'):
+                checkpoints.append(int(file.split('/status_checkpoint_')[1].split('.')[0]))
+                checkpoints.sort()
+
+            attempts = len(checkpoints)-1
+
+            while attempts >= 0:
+                try:
+                    f = open(f'{dir}/status_checkpoint_{checkpoints[attempts]}.pkl', 'rb')
+                    self.results_episodes, self.current_checkpoint, self.current_episode = pickle.load(f)
+
+                    # only recovers pickle if model also available
+                    env2 = DummyVecEnv([lambda: self.env])
+                    self.model = TD3.load(f'{dir}/model_checkpoint_{checkpoints[attempts]}', env=env2)
+
+                    attempts = -1
+
+                    self.log.write(f'RECOVERED checkpoint {checkpoints[attempts]}')
+
+                except:
+                    self.log.write(f'ERROR: Could not recover checkpoint {checkpoints[attempts]}')
+                    self.results_episodes, self.current_checkpoint, self.current_episode = [], 0, 0
+
+                attempts -= 1
+

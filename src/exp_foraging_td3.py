@@ -22,8 +22,6 @@ model = TD3(MlpPolicy,
             action_noise=action_noise,
             verbose=1)
 
-experiment = ExperimentManager(config=config,
-                               model=model,
-                               environment=foraging_env)
-
-experiment.run()
+ExperimentManager(config=config,
+                  model=model,
+                  environment=foraging_env).run()
