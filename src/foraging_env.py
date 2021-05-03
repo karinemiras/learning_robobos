@@ -141,7 +141,7 @@ class ForagingEnv(gym.Env):
 
         reward = food_reward + sight
 
-        #print(sensors, 'actions 'actions)
+       # print(sensors, 'actions 'actions)
         #print(sensors, 'food ' ,food_reward,  ' sight ',sight)
 
         self.current_step += 1

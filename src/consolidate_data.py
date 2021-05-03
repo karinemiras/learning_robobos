@@ -22,7 +22,7 @@ class ConsolidateData:
             pd.set_option("display.max_rows", 9999)
 
             measures = ['steps', 'duration', 'total_success', 'rewards']
-            measures_limits = [[0,100], [160, 210], [0, 7], [5, 80]]
+            measures_limits = [[100,130], [160, 210], [0, 7], [5, 80]]
 
             df = pd.DataFrame(data, columns=['episode']+measures)
 
@@ -56,7 +56,8 @@ class ConsolidateData:
 
             # TODO: what is wrong with steps?
             # temp hack!
-            df_agreg = df_agreg[df_agreg['episode'] < 17]
+           # df_agreg = df_agreg[df_agreg['episode'] < 17]
+            pprint.pprint(df_agreg)
 
             for idx, measure in enumerate(measures):
                 plot = df_agreg.plot.line(x='episode', y=measure)

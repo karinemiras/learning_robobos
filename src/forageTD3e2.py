@@ -20,6 +20,7 @@ action_noise = NormalActionNoise(mean=np.zeros(n_actions),
 model = TD3(MlpPolicy,
             foraging_env,
             action_noise=action_noise,
+            random_exploration=0.2,
             verbose=1)
 
 ExperimentManager(config=config,
