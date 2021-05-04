@@ -51,8 +51,11 @@ class ForagingEnv(gym.Env):
         self.observation_space = spaces.Box(low=0, high=1,
                                             shape=(5,), dtype=np.float32)
 
-        self.robot = robobo.SimulationRobobo().connect(address=self.config.robot_ip, port=self.config.robot_port)
-        time.sleep(1)
+        self.robot = False
+        while not self.robot:
+            print(self.config.robot_ip,  self.config.robot_port)
+            self.robot = robobo.SimulationRobobo().connect(address=self.config.robot_ip, port=self.config.robot_port)
+            time.sleep(1)
 
     def reset(self):
 

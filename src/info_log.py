@@ -13,4 +13,5 @@ class Log:
 
             time = datetime.datetime.now().strftime("%Y-%m-%d | %H:%M:%S")
 
-            logfile.write(f'\n{time}\t{message}')
+            logfile.write(f'\n{time}')
+            logfile.write(f'\n{message}')

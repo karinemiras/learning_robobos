@@ -1,15 +1,22 @@
 #!/bin/bash
+#set -e
+#set -x
 
-runs=4
-num_terminals=4
+
+
+num_terminals=2
 checkpoints=4
-start_port=19996
+start_port=20000
 
-experiments=("forageTD3e0" "forageTD3e1" "forageTD3e2")
+experiments=("forageTD3e1" "forageTD3e2" "forageTD3e0")
+#experiments=("TD3_experiment")
+runs=4
 
-while true
-	do
+#TODO: automatic lining
+#while true
+#	do
 
+    # discover unfinished experiments
     to_do=()
 
     for i in $(seq $runs)
@@ -21,21 +28,18 @@ while true
 
          echo ""
          file="experiments/${experiment}_${run}/log.txt";
+            echo $file;
 
          #check if experiments status
          if [[ -f "$file" ]]; then
 
            value=$(grep "SAVED checkpoint" $file|tail -n1|sed -E "s/\SAVED checkpoint ([0-9]+).*/\1/g");
-
-            echo $file;
             echo $value;
 
             if [ "$value" != "$checkpoints" ]; then
-
               to_do+=("${experiment}_${run}")
              fi
           else
-             echo "$file"
              echo "None";
              to_do+=("${experiment}_${run}")
           fi
@@ -49,14 +53,15 @@ while true
     for experiment in "${to_do[@]}"
     do
 
-         screen -d -m -S exp_${start_port}  python3  src/"$(cut -d'_' -f1 <<<"$experiment").py --experiment-name ${experiment} --robot-port ${start_port} > experiments/full_log_${experiment}.txt"
-         start_port=$((${start_port}+1))
+        screen -d -m -S exp_${start_port}  python3  src/$(cut -d'_' -f1 <<<"$experiment").py --experiment-name ${experiment} --robot-port ${start_port};
+        start_port=$((${start_port}+1))
+
     done
 
-    sleep 1800s;
 
-done
+   # sleep 1800s;
 
+#done
 
 # killall screen
 # screen -r naaameee

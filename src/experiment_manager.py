@@ -3,6 +3,7 @@ import pickle
 import pprint
 import os
 import time
+import traceback
 
 from stable_baselines.common.vec_env import DummyVecEnv
 from stable_baselines import TD3
@@ -62,7 +63,8 @@ class ExperimentManager:
                 self.log.write(f'SAVED checkpoint {self.current_checkpoint}')
 
             except Exception as error:
-                self.log.write(f'ERROR: {error}')
+                self.log.write(f'ERROR: {traceback.format_exc()}')
+
                 time.sleep(1)
 
         self.env.robot.stop_world()
