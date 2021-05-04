@@ -1,4 +1,6 @@
 import numpy as np
+import os
+os.environ["KMP_WARNINGS"] = "FALSE"
 
 from config import Config
 from experiment_manager import ExperimentManager
