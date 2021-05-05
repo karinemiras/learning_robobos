@@ -60,7 +60,7 @@ class ExperimentManager:
 
                 self.save_checkpoint()
 
-                self.log.write(f'SAVED checkpoint {self.current_checkpoint}')
+                self.log.write(f'SAVED checkpoint {self.current_checkpoint}', True)
 
             except Exception as error:
                 self.log.write(f'ERROR: {traceback.format_exc()}')

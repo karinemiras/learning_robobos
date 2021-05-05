@@ -5,7 +5,7 @@ class Log:
     def __init__(self, experiment_name):
         self.experiment_name = experiment_name
 
-    def write(self, message):
+    def write(self, message, line_break=False):
 
         print(message)
 
@@ -13,5 +13,7 @@ class Log:
 
             time = datetime.datetime.now().strftime("%Y-%m-%d | %H:%M:%S")
 
-            logfile.write(f'\n{time}')
-            logfile.write(f'\n{message}')
+            logfile.write(f'\n{time} ')
+            if line_break:
+                logfile.write(f'\n')
+            logfile.write(f'{message}')

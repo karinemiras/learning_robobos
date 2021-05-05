@@ -8,7 +8,7 @@ class Config:
 
         self.parser.add_argument(
             '--robot-ip',
-            default='192.168.0.100', type=str,
+            default='145.108.196.188', type=str,
             help="Ip of the robot."
         )
 
