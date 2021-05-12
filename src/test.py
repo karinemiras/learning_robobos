@@ -1,12 +1,14 @@
+import tensorflow as tf
+print("You are using TensorFlow version", tf.__version__)
 
-import traceback
 
-def coco(tee):
-    priddnt(tee)
 
-try:
-    print(coco('coco'))
 
-except Exception as error:
+if tf.test.gpu_device_name():
 
-    print(f'ERROR: {traceback.format_exc()}')
+    print('Default GPU Device:{}'.format(tf.test.gpu_device_name()))
+
+else:
+
+   print("Please install GPU version of TF")
+

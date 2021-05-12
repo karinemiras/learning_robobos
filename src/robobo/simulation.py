@@ -20,7 +20,9 @@ class SimulationRobobo(Robobo):
             self.wait_for_ping()
             print('Connected to remote API server: client id {}'.format(self._clientID))
         else:
-            raise VREPCommunicationError('Failed connecting to remote API server')
+            print('Failed connecting to remote API server')
+            return False
+            #raise VREPCommunicationError('Failed connecting to remote API server')
 
         get_handles_timeout = 120.0
 

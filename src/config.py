@@ -6,6 +6,8 @@ class Config:
 
         self.parser = argparse.ArgumentParser()
 
+        # simulation
+
         self.parser.add_argument(
             '--robot-ip',
             default='145.108.196.188', type=str,
@@ -18,6 +20,8 @@ class Config:
             help="Port of the robot."
         )
 
+        # experimental setup
+
         self.parser.add_argument(
             '--train-or-test',
             default='train', type=str,
@@ -25,28 +29,39 @@ class Config:
         )
 
         self.parser.add_argument(
-            '--episode-train-time',
-            default=200000, type=int,
-            help="Maximum duration of an episode while training."
+            '--episode-train-steps',
+            default=120, type=int,
+            help="Maximum number of steps of an episode while training."
         )
 
         self.parser.add_argument(
-            '--episode-test-time',
-            default=300000, type=int,
+            '--episode-test-steps',
+            default=160, type=int,
             help="Maximum duration of an episode while testing."
         )
 
         self.parser.add_argument(
-            '--checkpoints',
-            default=4, type=int,
-            help="N stages of training, so that experiments are saved after each stage."
+            '---test-freq',
+            default=1000, type=int,
+            help="After how many steps the policy should be tested."
         )
 
+        self.parser.add_argument(
+            '---number-tests',
+            default=5, type=int,
+            help="Number of episodes to repeat the test of the policy."
+        )
+
+        self.parser.add_argument(
+            '--training-timesteps',
+            default=25000, type=int,
+            help="Number of total time steps in the training."
+        )
 
         self.parser.add_argument(
             '--checkpoint-timesteps',
             default=5000, type=int,
-            help="Number of total time steps in each training stage."
+            help="After how many time steps sabes checkpoint."
         )
 
         self.parser.add_argument(
@@ -54,6 +69,9 @@ class Config:
             default='default_experiment', type=str,
             help="Name of the current experiment."
         )
+
+
+        # states and actions
 
         self.parser.add_argument(
             '--min-millis',

@@ -2,6 +2,9 @@ import numpy as np
 import os
 os.environ["KMP_WARNINGS"] = "FALSE"
 
+os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+
+
 from config import Config
 from experiment_manager import ExperimentManager
 from foraging_env import ForagingEnv

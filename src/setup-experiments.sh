@@ -3,13 +3,13 @@
 #set -x
 
 
-num_terminals=1
-checkpoints=4
-#start_port=20000
-start_port=20001
+num_terminals=15
+checkpoints=5
+start_port=20000
+
 
 experiments=("forageTD3e1" "forageTD3e2" "forageTD3e0")
-runs=10
+runs=20
 
 
 while true

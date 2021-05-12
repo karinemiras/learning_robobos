@@ -13,6 +13,7 @@ import robobo
 # TODO: fix this?
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 
+
 class ForagingEnv(gym.Env):
     """
     Custom gym Environment.
@@ -40,9 +41,9 @@ class ForagingEnv(gym.Env):
         self.exp_manager = None
 
         if self.config.train_or_test == 'train':
-            self.episode_length = self.config.episode_train_time
+            self.episode_length = self.config.episode_train_steps
         else:
-            self.episode_length = self.config.episode_test_time
+            self.episode_length = self.config.episode_test_steps
 
         # Define action and sensors space
         self.action_space = spaces.Box(low=0, high=1,
@@ -63,13 +64,11 @@ class ForagingEnv(gym.Env):
         :return: (np.array)
         """
 
-        print('food',self.total_success)
-
-        self.exp_manager.register_episode()
-
         self.done = False
         self.total_success = 0
         self.current_step = 0
+
+        self.exp_manager.register_episode()
 
         self.robot.stop_world()
         while self.robot.is_simulation_running():
@@ -115,14 +114,21 @@ class ForagingEnv(gym.Env):
         # gets states
 
         self.finish_time = self.robot.get_sim_time()
-
+        
         sensors = self.get_infrared()
 
         color_y, color_x = self.detect_color()
 
         collected_food = self.robot.collected_food()
-        if self.finish_time - self.start_time >= self.episode_length or collected_food == self.max_food:
+
+        if self.exp_manager.mode_train_test == 'train':
+            episode_length =  self.config.episode_train_steps
+        else:
+            episode_length = self.config.episode_test_steps
+
+        if self.current_step == episode_length-1 or collected_food == self.max_food:
             self.done = True
+            self.food_print()
 
         # calculates rewards
 
@@ -154,6 +160,12 @@ class ForagingEnv(gym.Env):
 
     def render(self, mode='console'):
         pass
+
+    def food_print(self):
+        if self.exp_manager.mode_train_test == 'train':
+            print(f'food in episode {self.exp_manager.current_episode}: {self.total_success}')
+        else:
+            print(f'   food: {self.total_success}')
 
     def close(self):
         pass
@@ -192,3 +204,4 @@ class ForagingEnv(gym.Env):
 
         # if green detected, returns average positions of y and x
         return avg_y, avg_x
+
