@@ -7,7 +7,6 @@ from gym import spaces
 import numpy as np
 import os
 import time
-import random
 
 import robobo
 
@@ -31,7 +30,7 @@ class ForagingEnv(gym.Env):
 
         self.max_food = 7
         self.food_reward = 10
-        self.sight_reward = -0.1
+        self.sight_reward = 0.1
 
         # init
         self.done = False
@@ -46,7 +45,7 @@ class ForagingEnv(gym.Env):
                                        shape=(2,), dtype=np.float32)
         # why high and low?
         self.observation_space = spaces.Box(low=0, high=1,
-                                            shape=(6,), dtype=np.float32)
+                                            shape=(5,), dtype=np.float32)
 
         self.robot = False
         while not self.robot:
@@ -82,8 +81,8 @@ class ForagingEnv(gym.Env):
         # TODO: randomize position
 
         sensors = self.get_infrared()
-        prop_green_points, color_y, color_x = self.detect_color()
-        sensors = np.append(sensors, [prop_green_points, color_y, color_x])
+        color_y, color_x = self.detect_color()
+        sensors = np.append(sensors, [color_y, color_x])
 
         return np.array(sensors).astype(np.float32)
 
@@ -110,7 +109,7 @@ class ForagingEnv(gym.Env):
 
         # gets states
         sensors = self.get_infrared()
-        prop_green_points, color_y, color_x = self.detect_color()
+        color_y, color_x = self.detect_color()
         collected_food = self.robot.collected_food()
 
         if self.exp_manager.config.train_or_test == 'train':
@@ -133,14 +132,12 @@ class ForagingEnv(gym.Env):
 
         self.total_success = collected_food
 
-        if prop_green_points > 0:
-            sight = prop_green_points
-        else:
+        if color_y and color_x:
             sight = self.sight_reward
+        else:
+            sight = -self.sight_reward
 
-        print(prop_green_points, sight)
-
-        sensors = np.append(sensors, [prop_green_points, color_y, color_x])
+        sensors = np.append(sensors, [color_y, color_x])
 
         reward = food_reward + sight
 
@@ -192,12 +189,8 @@ class ForagingEnv(gym.Env):
 
         # mask of green
         mask = cv2.inRange(hsv, (36, 25, 25), (70, 255, 255))
-        number_green_points = cv2.countNonZero(mask)
-        total_points = 16384 #128*128
-        prop_green_points = number_green_points/total_points
-        #cv2.imwrite(str(random.randint(0, 100000))+"_"+str(prop_green_points)+".png", image)
 
-        if number_green_points > 0:
+        if cv2.countNonZero(mask) > 0:
             y = np.where(mask == 255)[0]
             x = np.where(mask == 255)[1]
             avg_y = sum(y) / len(y)
@@ -207,6 +200,6 @@ class ForagingEnv(gym.Env):
             avg_y = 0
             avg_x = 0
 
-        # if green detected, returns proportion of green points and average positions of y and x
-        return prop_green_points, avg_y, avg_x
+        # if green detected, returns average positions of y and x
+        return avg_y, avg_x
 

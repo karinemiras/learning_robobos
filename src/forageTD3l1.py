@@ -26,6 +26,7 @@ model = TD3(MlpPolicy,
             foraging_env,
             action_noise=action_noise,
             random_exploration=0,
+            learning_rate=0.0001,
             verbose=1)
 
 ExperimentManager(config=config,

@@ -8,7 +8,7 @@ from foraging_env import ForagingEnv
 
 from stable_baselines import TD3
 from stable_baselines.td3.policies import MlpPolicy
-from stable_baselines.ddpg.noise import NormalActionNoise, OrnsteinUhlenbeckActionNoise
+from stable_baselines.ddpg.noise import NormalActionNoise
 
 
 config = Config()
@@ -22,7 +22,7 @@ action_noise = NormalActionNoise(mean=np.zeros(n_actions),
 model = TD3(MlpPolicy,
             foraging_env,
             action_noise=action_noise,
-            random_exploration=0.2,
+            random_exploration=0.1,
             verbose=1)
 
 ExperimentManager(config=config,

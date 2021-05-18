@@ -64,7 +64,7 @@ class CustomCallback(BaseCallback):
         :return: (bool) If the callback returns False, training is aborted early.
         """
 
-        self.test_policy()
+        self.validate_policy()
         self.save_checkpoint()
 
         return True
@@ -81,21 +81,21 @@ class CustomCallback(BaseCallback):
         """
         pass
 
-    def test_policy(self):
-        if self.num_timesteps % self.experiment_manager.config.test_freq == 0:
+    def validate_policy(self):
+        if self.num_timesteps % self.experiment_manager.config.validation_freq == 0:
 
-            print('> Testing...')
+            print('> Validating...')
 
-            for i in range(1, self.experiment_manager.config.number_tests+1):
-                print('  Test', i)
-                self.experiment_manager.mode_train_test = 'test'
+            for i in range(1, self.experiment_manager.config.number_validations+1):
+                print(' validation', i)
+                self.experiment_manager.mode_train_validation = 'validation'
                 obs = self.experiment_manager.env.reset()
                 done = False
                 while not done:
                     action, _states = self.experiment_manager.model.predict(obs)
                     obs, rewards, done, info = self.experiment_manager.env.step(action)
 
-                self.experiment_manager.mode_train_test = 'train'
+                self.experiment_manager.mode_train_validation = 'train'
 
             print(' ')
 
@@ -122,30 +122,29 @@ class ExperimentManager:
         self.log = Log(self.config.experiment_name)
 
         self.results_episodes = []
-        self.results_episodes_test = []
+        self.results_episodes_validation = []
         self.current_checkpoint = 0
         self.current_episode = 0
-        self.mode_train_test = 'train'
-
+        self.mode_train_validation = 'train'
 
     def register_episode(self):
-        if self.mode_train_test == 'train':
+        if self.mode_train_validation == 'train':
             self.current_episode += 1
 
     def register_step(self, rewards):
 
-        if self.mode_train_test == 'train':
+        if self.mode_train_validation == 'train':
             self.results_episodes.append([
                                         self.current_episode,
                                         self.env.current_step,
-                                        self.env.finish_time,
+                                        self.env.duration,
                                         self.env.total_success,
                                         rewards])
         else:
-            self.results_episodes_test.append([
+            self.results_episodes_validation.append([
                                         self.current_episode,
                                         self.env.current_step,
-                                        self.env.finish_time,
+                                        self.env.duration,
                                         self.env.total_success,
                                         rewards])
 
@@ -180,6 +179,7 @@ class ExperimentManager:
         f = open(f'{dir}/status_checkpoint_{self.current_checkpoint}.pkl', 'wb')
         pickle.dump([
                      self.results_episodes,
+                     self.results_episodes_validation,
                      self.current_checkpoint,
                      self.current_episode
                      ], f)
@@ -204,7 +204,7 @@ class ExperimentManager:
             while attempts >= 0:
                 try:
                     f = open(f'{dir}/status_checkpoint_{checkpoints[attempts]}.pkl', 'rb')
-                    self.results_episodes, self.current_checkpoint, self.current_episode = pickle.load(f)
+                    self.results_episodes, self.results_episodes_validation, self.current_checkpoint, self.current_episode = pickle.load(f)
 
                     # only recovers pickle if model also available
                     env2 = DummyVecEnv([lambda: self.env])
@@ -216,7 +216,26 @@ class ExperimentManager:
 
                 except:
                     self.log.write(f'ERROR: Could not recover checkpoint {checkpoints[attempts]}')
-                    self.results_episodes, self.current_checkpoint, self.current_episode = [], 0, 0
+                    self.results_episodes, self.results_episodes_validation, self.current_checkpoint, self.current_episode = [], [], 0, 0
 
                 attempts -= 1
+
+    def test_policy(self, save_results, experiment, run):
+
+        self.prepare_stage()
+
+        print('> Testing...')
+        for i in range(1, self.config.number_tests+1):
+            print('  Test', i)
+            obs = self.env.reset()
+            done = False
+            print(self.env.current_step)
+            while not done:
+                action, _states = self.model.predict(obs)
+                obs, rewards, done, info = self.env.step(action)
+
+                if save_results:
+                    print('saving')
+
+            print( self.env.current_step)
 

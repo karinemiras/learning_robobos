@@ -3,18 +3,17 @@
 #set -x
 
 
-num_terminals=15
+num_terminals=20
 checkpoints=5
-start_port=20000
+
+experiments=("forageTD3e1" "forageTD3e2" "forageTD3e0" "forageTD3l1" "forageTD3l5")
+runs=15
 
 
-experiments=("forageTD3e1" "forageTD3e2" "forageTD3e0")
-runs=20
+#while true
+	#do
 
-
-while true
-	do
-
+    start_port=20000
 
     # check if there are free terminals
 
@@ -73,17 +72,17 @@ while true
     for experiment in "${to_do[@]}"
     do
 
-        screen -d -m -S exp_${start_port} -L -Logfile experiments/"${experiment}.log" nice -n19 python3  src/$(cut -d'_' -f1 <<<"$experiment").py --experiment-name ${experiment} --robot-port ${start_port};
+      screen -d -m -S exp_${start_port}_${experiment} -L -Logfile experiments/"${experiment}.log" nice -n19 python3  src/$(cut -d'_' -f1 <<<"$experiment").py --experiment-name ${experiment} --robot-port ${start_port};
 
-        printf "\n >> running ${experiment} in screen exp_${start_port} \n\n"
+        printf "\n >> running exp_${start_port}_${experiment} \n\n"
         start_port=$((${start_port}+1))
 
     done
 
 
-   sleep 1800s;
+   #sleep 1800s;
 
-done
+#done
 
 # screen -ls  | egrep "^\s*[0-9]+.exp_" | awk -F "." '{print $1}' |  xargs kill
 # killall screen
