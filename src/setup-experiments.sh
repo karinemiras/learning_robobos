@@ -5,7 +5,7 @@
 
 num_terminals=20
 experiments=("forageTD3e1" "forageTD3e2" "forageTD3e0" "forageTD3l1" "forageTD3l5")
-runs=15
+runs=10
 checkpoints=5
 start_port=20000
 

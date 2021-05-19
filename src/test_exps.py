@@ -7,16 +7,16 @@ from foraging_env import ForagingEnv
 
 config = Config()
 config = config.parser.parse_args()
-config.robot_port = 26666
+config.robot_port = 20000
 config.train_or_test = 'test'
 foraging_env = ForagingEnv(config=config)
 
 experiments = [
-    "forageTD3e0",
-    "forageTD3e1",
-    "forageTD3e2",
-    "forageTD3l1",
-    "forageTD3l5"
+    #"forageTD3e0"#,
+    #"forageTD3e1",
+    #"forageTD3e2",
+    "forageTD3l1"#,
+   # "forageTD3l5"
 ]
 
 runs = 1

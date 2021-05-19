@@ -43,7 +43,7 @@ class ForagingEnv(gym.Env):
 
         # Define action and sensors space
         self.action_space = spaces.Box(low=0, high=1,
-                                       shape=(2,), dtype=np.float32)
+                                       shape=(3,), dtype=np.float32)
         # why high and low?
         self.observation_space = spaces.Box(low=0, high=1,
                                             shape=(6,), dtype=np.float32)
@@ -95,18 +95,17 @@ class ForagingEnv(gym.Env):
 
         action_left = actions[0]
         action_right = actions[1]
-        #action_millis = actions[2]
+        action_millis = actions[2]
 
         left = action_left * (self.config.max_left - self.config.min_left) + self.config.min_left
         right = action_right * (self.config.max_right - self.config.min_right) + self.config.min_right
 
-        #freedom_millis = self.config.max_millis - self.config.min_millis
-        #millis = self.config.min_millis + freedom_millis * action_millis
+        freedom_millis = self.config.max_millis - self.config.min_millis
+        millis = self.config.min_millis + freedom_millis * action_millis
 
         # performs actions
 
-        #self.robot.move(left, right, millis)
-        self.robot.move(left, right)
+        self.robot.move(left, right, millis)
 
         # gets states
         sensors = self.get_infrared()
@@ -134,7 +133,7 @@ class ForagingEnv(gym.Env):
         self.total_success = collected_food
 
         if prop_green_points > 0:
-            sight = prop_green_points
+            sight = prop_green_points*10
         else:
             sight = self.sight_reward
 

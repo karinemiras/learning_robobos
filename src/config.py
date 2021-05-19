@@ -37,7 +37,7 @@ class Config:
 
         self.parser.add_argument(
             '--episode-test-steps',
-            default=150, type=int,
+            default=100, type=int, #170
             help="Maximum duration of an episode while making final tests."
         )
 
@@ -87,7 +87,7 @@ class Config:
 
         self.parser.add_argument(
             '--min-millis',
-            default=500, type=int,
+            default=100, type=int,
             help="Minimum duration of actions."
         )
 
