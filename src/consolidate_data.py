@@ -4,8 +4,9 @@ import pickle
 import pprint
 import pandas as pd
 import matplotlib.pyplot as plt
+import sys
 
-pd.set_option("display.max_rows", 9999)
+pd.set_option("display.max_rows", 99999)
 
 
 class ConsolidateData:
@@ -16,8 +17,7 @@ class ConsolidateData:
 
         self.experiments = experiments
         self.runs = runs
-        self.dir = 'experiments/'
-        self.aggregation_episodes = 10
+        self.dir = 'experiments/old2/'
 
     def run(self):
 
@@ -25,67 +25,98 @@ class ConsolidateData:
 
         for experiment in self.experiments:
 
-            for run in range(1, self.runs+1):
+            for run in self.runs:
+
+                print(experiment, run)
 
                 data = self.recover_latest_checkpoint(experiment, run)
 
-                measures = ['steps', 'time', 'total_success', 'rewards']
-                measures_limits = [[100,130], [160, 210], [0, 7], [5, 80]]
-
                 df = pd.DataFrame(data, columns=['episode']+measures)
 
-                df_agreg = df.groupby('episode').agg(
+                # adds index for repetitions
+                df['val_index'] = df['steps']
+                df['val_index'] = df.val_index.eq(1).cumsum()
+
+                # get relevant values from each episode
+                df_relevant = df.groupby(['episode', 'val_index']).agg(
                                 steps=('steps', max),
-                                duration=('time', max),
+                                duration=('duration', max),
                                 total_success=('total_success', max),
                                 rewards=('rewards', sum)
                             ).reset_index()
 
+                # calculates earliest step of max success
                 df = df.rename(columns={'steps': 'step_success'}, inplace=False)
-                step_success = df.iloc[df.groupby('episode')['total_success'].
-                                            agg(pd.Series.idxmax)].filter(['episode', 'step_success'])
+                step_success = df.iloc[df.groupby(['episode', 'val_index'])['total_success'].
+                                            agg(pd.Series.idxmax)].filter(['episode',  'val_index', 'step_success'])
 
-                df_agreg = df_agreg.merge(step_success, on='episode')
+               # print('df_relevant2')
+                df_relevant = df_relevant.merge(step_success, on=['episode', 'val_index'])
 
-                df_agreg['experiment'] = experiment
-                df_agreg['run'] = run
-                full_data = pd.concat([full_data, df_agreg])
+                #  average validation episodes
+                df_avg_intra = df_relevant.groupby('episode').agg(
+                                steps=('steps', 'mean'),
+                                duration=('duration', 'mean'),
+                                total_success=('total_success', 'mean'),
+                                rewards=('rewards', 'mean'),
+                                step_success=('step_success', 'mean')
+                            ).reset_index()
+                df_avg_intra['duration'] = round(df_avg_intra['duration'] / 1000/ 60, 1)
 
-        #pprint.pprint(full_data)
+                df_avg_intra['episode'] = range(1, len(df_avg_intra)+1)
 
-        # make quartiles later
-        aggregations = ['max', 'mean', 'std']
+                df_avg_intra['experiment'] = experiment
+                df_avg_intra['run'] = run
+                full_data = pd.concat([full_data, df_avg_intra])
+
+        def q25(x):
+            return x.quantile(0.25)
+        def q75(x):
+            return x.quantile(0.75)
+
+        # average runs
         full_data_agreg = full_data.groupby(['experiment', 'episode'])\
                                 .agg(
+                                    steps_median=('steps', 'median'),
                                     steps_mean=('steps', 'mean'),
-                                    steps_max=('steps', 'max'),
                                     steps_std=('steps', 'std'),
+                                    steps_max=('steps', 'max'),
+                                    steps_min=('steps', 'min'),
+                                    steps_q25=('steps', q25),
+                                    steps_q75=('steps', q75),
+                                    duration_median=('duration', 'median'),
                                     duration_mean=('duration', 'mean'),
-                                    duration_max=('duration', 'max'),
                                     duration_std=('duration', 'std'),
+                                    duration_max=('duration', 'max'),
+                                    duration_min=('duration', 'min'),
+                                    duration_q25=('duration', q25),
+                                    duration_q75=('duration', q75),
+                                    total_success_median=('total_success', 'median'),
                                     total_success_mean=('total_success', 'mean'),
-                                    total_success_max=('total_success', 'max'),
                                     total_success_std=('total_success', 'std'),
+                                    total_success_max=('total_success', 'max'),
+                                    total_success_min=('total_success', 'min'),
+                                    total_success_q25=('total_success', q25),
+                                    total_success_q75=('total_success', q75),
+                                    rewards_median=('rewards', 'median'),
                                     rewards_mean=('rewards', 'mean'),
+                                    rewards_std=('rewards', 'std'),
                                     rewards_max=('rewards', 'max'),
-                                    rewards_std=('rewards', 'std')
+                                    rewards_min=('rewards', 'min'),
+                                    rewards_q25=('rewards', q25),
+                                    rewards_q75=('rewards', q75),
+                                    step_success_median=('step_success', 'median'),
+                                    step_success_mean=('step_success', 'mean'),
+                                    step_success_std=('step_success', 'std'),
+                                    step_success_max=('step_success', 'max'),
+                                    step_success_min=('step_success', 'min'),
+                                    step_success_q25=('step_success', q25),
+                                    step_success_q75=('step_success', q75)
                                     ).reset_index()
 
-        pprint.pprint(full_data_agreg)
-        #print(full_data_agreg.dtypes)
-       # print(full_data_agreg['total_success']['mean'])
-       # for idx, measure in enumerate(measures):
-        #    plot = df_agreg.plot.line(x='episode', y=measure)
-            #plot.set_ylim(measures_limits[idx][0], measures_limits[idx][1])
-            #plot.get_figure().savefig(f'{self.dir}{measure}.png')
 
-        fig, ax = plt.subplots()
+        full_data_agreg.to_csv(f'{self.dir}consolidated.csv')
 
-        for key, grp in full_data_agreg.groupby(['experiment']):
-            ax = grp.plot(ax=ax, kind='line', x='episode', y='total_success_mean' , label=key) #c
-
-        plt.legend(loc='best')
-        plt.show()
 
     def recover_latest_checkpoint(self, experiment_name, run):
         dir = f'{self.dir}{experiment_name}_{run}'
@@ -98,8 +129,8 @@ class ConsolidateData:
         while attempts >= 0:
             try:
                 f = open(f'{dir}/status_checkpoint_{checkpoints[attempts]}.pkl', 'rb')
-                results_episodes, dummy1, dummy2 = pickle.load(f)
-                return results_episodes
+                results_episodes, results_episodes_validation, dummy1, dummy2 = pickle.load(f)
+                return results_episodes_validation
             except:
                 print(f'ERROR: Could not recover checkpoint {checkpoints[attempts]}')
             attempts -= 1
@@ -108,11 +139,11 @@ class ConsolidateData:
 cd = ConsolidateData(
         experiments=["forageTD3e0",
                      "forageTD3e1",
-                    # "forageTD3e2",
-                    # "forageTD3l1",
-                   #  "forageTD3l5"
+                     "forageTD3e2",
+                     "forageTD3l1",
+                     "forageTD3l5"
                      ],
-        runs=15
+        runs=range(1, 5+1)
 )
 
 cd.run()

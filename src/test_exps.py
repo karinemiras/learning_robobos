@@ -19,7 +19,7 @@ experiments = [
     "forageTD3l5"
 ]
 
-runs = 15
+runs = 1
 save_results = True
 
 for experiment in experiments:

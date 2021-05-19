@@ -25,13 +25,13 @@ class Config:
 
         self.parser.add_argument(
             '--episode-train-steps',
-            default=10, type=int, #100
+            default=100, type=int, 
             help="Maximum number of steps of an episode while training."
         )
 
         self.parser.add_argument(
             '--episode-validation-steps',
-            default=10, type=int, #130
+            default=130, type=int,
             help="Maximum duration of an episode while validating (during training)."
         )
 
@@ -43,13 +43,13 @@ class Config:
 
         self.parser.add_argument(
             '---validation-freq',
-            default=20, type=int, #1000
+            default=1000, type=int,
             help="After how many steps the policy should be validation."
         )
 
         self.parser.add_argument(
             '---number-validations',
-            default=1, type=int, #5
+            default=5, type=int,
             help="Number of episodes to repeat the validation of the policy during training."
         )
 

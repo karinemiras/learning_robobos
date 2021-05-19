@@ -138,8 +138,6 @@ class ForagingEnv(gym.Env):
         else:
             sight = self.sight_reward
 
-        print(prop_green_points, sight)
-
         sensors = np.append(sensors, [prop_green_points, color_y, color_x])
 
         reward = food_reward + sight
