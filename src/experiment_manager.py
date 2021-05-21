@@ -220,11 +220,11 @@ class ExperimentManager:
 
                 attempts -= 1
 
-    def test_policy(self, save_results, experiment, run):
+    def test_policy(self, experiment, run):
 
         self.prepare_stage()
 
-        print('> Testing...')
+        print('> Testing ', experiment, run)
         for i in range(1, self.config.number_tests+1):
             print('  Test', i)
             obs = self.env.reset()
@@ -233,7 +233,5 @@ class ExperimentManager:
                 action, _states = self.model.predict(obs)
                 obs, rewards, done, info = self.env.step(action)
 
-            if save_results:
-                print('saving food',self.env.total_success)
 
 

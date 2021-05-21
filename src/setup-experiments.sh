@@ -4,9 +4,9 @@
 
 
 num_terminals=20
-experiments=("forageTD3e1" "forageTD3e2" "forageTD3e0" "forageTD3l1" "forageTD3l5")
-runs=10
-checkpoints=5
+experiments=("env1TD3e0" "env1TD3l1" "env1TD3l5" "env2TD3e0" "env2TD3l1" "env2TD3l5" "env3TD3e0" "env3TD3l1" "env3TD3l5")
+runs=20
+checkpoints=3
 start_port=20000
 
 
@@ -29,12 +29,8 @@ while true
     free_screens=()
     active_experiments=()
 
-   ###
+
     declare -a arr="$(screen -list)"
-        echo "listtt"
-        for ar in "${arr[@]}"; do
-           echo $ar
-      done
 
 
     for obj in ${arr[@]}; do
@@ -52,22 +48,6 @@ while true
            free_screens+=($possible_screen)
      fi
       done
-
-      ###
-      echo "active_screens"
-        for active_screen in "${active_screens[@]}"; do
-           echo $active_screen
-      done
-       echo "active_experiments"
-        for active_experiment in "${active_experiments[@]}"; do
-           echo $active_experiment
-      done
-      echo "free_screens"
-        for free_screen in "${free_screens[@]}"; do
-           echo $free_screen
-      done
-
-
 
 
     # discover unfinished experiments
@@ -114,13 +94,6 @@ while true
 
     max_fs=${#free_screens[@]}
     to_do=("${to_do[@]:0:$max_fs}")
-
-      ###
-      echo "to_do"
-        for to_d in "${to_do[@]}"; do
-           echo $to_d
-      done
-
 
 
     p=0

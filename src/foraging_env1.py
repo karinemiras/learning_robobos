@@ -70,6 +70,8 @@ class ForagingEnv(gym.Env):
         while self.robot.is_simulation_running():
             pass
 
+        self.robot.set_position()
+
         self.robot.play_simulation()
         while self.robot.is_simulation_stopped():
             pass
@@ -141,7 +143,7 @@ class ForagingEnv(gym.Env):
 
         reward = food_reward + sight
 
-       # print(sensors, 'actions 'actions)
+        #print('actions ', actions)
         #print(sensors, 'food ' ,food_reward,  ' sight ',sight)
 
         # if episode is over

@@ -4,6 +4,7 @@ import time
 import vrep
 import cv2
 import numpy as np
+import random
 
 class VREPCommunicationError(Exception):
     pass
@@ -330,6 +331,42 @@ class SimulationRobobo(Robobo):
         """
         self.wait_for_ping()
         return vrep.simxGetLastCmdTime(self._clientID)
+
+    def set_position(self):
+
+            # x = higher goes backwards / y = higher goes left / yaw = higher goes right if positive, and inverse if negative?
+
+            # x/y/z
+            positions = [
+                [-3, 0.8749573826789856, 0.03715137392282486],
+                [-2.75, 0.8749573826789856, 0.03715137392282486],
+                [-3.85, 0.8749573826789856, 0.03715137392282486],
+                [-3.149959087371826, 1.34, 0.03715137392282486],
+                [-3.149959087371826, 0.2, 0.03715137392282486],
+                [-2.6, 0.57, 0.03715137392282486],
+                [-2.6, 1.34, 0.03715137392282486]
+            ]
+
+            # -/yaw/-
+            orietations = [
+                [1.5724095106124878, -1.960279035568237, 1.5723344087600708],
+                [1.5724095106124878, -1.860279035568237, 1.5723344087600708],
+                [1.5724095106124878, 1.160279035568237, 1.5723344087600708],
+                [1.5724095106124878, 1.860279035568237, 1.5723344087600708],
+                [1.5724095106124878, -1.7, 1.5723344087600708],
+                [1.5724095106124878, -1.660279035568237, 1.5723344087600708],
+                [1.5724095106124878, 1.2, 1.5723344087600708]
+            ]
+
+            pos = random.randint(0, len(positions) - 1)
+
+            vrep.simxSetObjectOrientation(self._clientID, self._Robobo, -1,
+                                          orietations[pos],
+                                          vrep.simx_opmode_blocking)
+
+            vrep.simxSetObjectPosition(self._clientID, self._Robobo, -1,
+                                       positions[pos],
+                                       vrep.simx_opmode_blocking)
 
     def position(self):
         return vrep.unwrap_vrep(

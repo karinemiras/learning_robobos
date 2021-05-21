@@ -25,7 +25,7 @@ class Config:
 
         self.parser.add_argument(
             '--episode-train-steps',
-            default=100, type=int, 
+            default=100, type=int,
             help="Maximum number of steps of an episode while training."
         )
 
@@ -37,7 +37,7 @@ class Config:
 
         self.parser.add_argument(
             '--episode-test-steps',
-            default=100, type=int, #170
+            default=170, type=int,
             help="Maximum duration of an episode while making final tests."
         )
 
@@ -61,13 +61,13 @@ class Config:
 
         self.parser.add_argument(
             '---number-tests',
-            default=10, type=int,
+            default=3, type=int,
             help="Number of episodes to repeat the test of the policy after training."
         )
 
         self.parser.add_argument(
             '--training-timesteps',
-            default=25000, type=int,
+            default=15000, type=int,
             help="Number of total time steps in the training."
         )
 

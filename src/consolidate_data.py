@@ -17,7 +17,7 @@ class ConsolidateData:
 
         self.experiments = experiments
         self.runs = runs
-        self.dir = 'experiments/old2/'
+        self.dir = 'experiments/'
 
     def run(self):
 
@@ -29,6 +29,7 @@ class ConsolidateData:
 
                 print(experiment, run)
 
+                measures = ['steps', 'duration', 'total_success', 'rewards']
                 data = self.recover_latest_checkpoint(experiment, run)
 
                 df = pd.DataFrame(data, columns=['episode']+measures)
@@ -50,7 +51,6 @@ class ConsolidateData:
                 step_success = df.iloc[df.groupby(['episode', 'val_index'])['total_success'].
                                             agg(pd.Series.idxmax)].filter(['episode',  'val_index', 'step_success'])
 
-               # print('df_relevant2')
                 df_relevant = df_relevant.merge(step_success, on=['episode', 'val_index'])
 
                 #  average validation episodes
@@ -63,8 +63,9 @@ class ConsolidateData:
                             ).reset_index()
                 df_avg_intra['duration'] = round(df_avg_intra['duration'] / 1000/ 60, 1)
 
-                df_avg_intra['episode'] = range(1, len(df_avg_intra)+1)
+                pprint.pprint(df_avg_intra)
 
+                df_avg_intra['episode'] = range(1, len(df_avg_intra)+1)
                 df_avg_intra['experiment'] = experiment
                 df_avg_intra['run'] = run
                 full_data = pd.concat([full_data, df_avg_intra])
@@ -132,7 +133,7 @@ class ConsolidateData:
                 results_episodes, results_episodes_validation, dummy1, dummy2 = pickle.load(f)
                 return results_episodes_validation
             except:
-                print(f'ERROR: Could not recover checkpoint {checkpoints[attempts]}')
+                print(f'ERROR: Could not recover checkpoint {checkpoints[attempts]} {traceback.format_exc()}')
             attempts -= 1
 
 
@@ -143,7 +144,7 @@ cd = ConsolidateData(
                      "forageTD3l1",
                      "forageTD3l5"
                      ],
-        runs=range(1, 5+1)
+        runs=range(1, 4+1)
 )
 
 cd.run()
