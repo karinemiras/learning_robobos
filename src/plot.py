@@ -5,6 +5,10 @@ import pprint
 import pandas as pd
 import matplotlib.pyplot as plt
 import sys
+import seaborn as sb
+from statannot import add_stat_annotation
+from itertools import combinations
+
 
 pd.set_option("display.max_rows", 99999)
 
@@ -15,14 +19,14 @@ class PlotData:
         self.anal = anal
         self.experiments =  experiments
 
-        self.dir = 'experiments/new_env_greenmile_rand/'
+        self.dir = 'experiments/old/'
         self.measures = ['steps', 'duration', 'total_success', 'rewards', 'step_success']
-        self.measures_limits = [[1,1 ], [1,1 ], [-1.5, 9.5], [1,1 ], [1,1]]
+        self.measures_limits = [[0, 130], [5, 13], [-1.5, 9.5], [0, 100], [0, 130]]
         self.metrics = ['max', 'mean', 'min', 'median']
 
-    def run(self):
+    def lines(self):
 
-        full_data_agreg = pd.read_csv(f'{self.dir}consolidated.csv')
+        full_data_agreg = pd.read_csv(f'{self.dir}full_data_agreg.csv')
         full_data_agreg =  full_data_agreg[full_data_agreg['experiment'].isin(self.experiments)]
 
         print(full_data_agreg)
@@ -56,27 +60,47 @@ class PlotData:
                     plt.title(self.anal)
                     ax.legend()
 
-                plt.savefig(f'{self.dir}{measure}_{metric}.png')
+                plt.savefig(f'{self.dir}{self.anal}_{measure}_{metric}.png')
 
                 # add marker max, bigger letters, better titles and axis, better colors, legends
 
 
+    def boxes(self):
 
-#
-# analysis = {
-#     'env1': ['env1TD3e0', 'env1TD3l1', 'env1TD3l5'],
-#     'env2': ['env2TD3e0', 'env2TD3l1', 'env2TD3l5'],
-#     'env3': ['env3TD3e0', 'env3TD3l1', 'env3TD3l5']
-# }
+        tests_combinations = list(combinations(self.experiments, 2))
+
+        full_data_agreg = pd.read_csv(f'{self.dir}full_data.csv')
+        full_data_agreg = full_data_agreg[full_data_agreg['experiment'].isin(self.experiments)]
+
+        full_data_agreg=full_data_agreg[full_data_agreg['episode'] == full_data_agreg["episode"].max()]
+
+        for idx_measure, measure in enumerate(self.measures):
+            sb.set()
+
+            plot=sb.boxplot(x='experiment', y=measure, data=full_data_agreg) # hue='Style',
+
+
+
+            add_stat_annotation(plot, data=full_data_agreg, x='experiment', y=measure,# order=order,
+                                box_pairs=tests_combinations,
+                                test='Mann-Whitney', text_format='star', loc='outside', verbose=2)
+
+            plot.get_figure().savefig(f'{self.dir}{self.anal}_{measure}_box.png')
+            plt.clf()
 
 
 analysis = {
-    'test': ['forageTD3e0', 'forageTD3l1', 'forageTD3l5']
+    'env1': ['env1TD3e0', 'env1TD3l1', 'env1TD3l5'],
+    'env2': ['env2TD3e0', 'env2TD3l1', 'env2TD3l5'],
+    'env3': ['env3TD3e0', 'env3TD3l1', 'env3TD3l5']
 }
+
+
 
 for anal in analysis:
     cd = PlotData(anal, analysis[anal])
-    cd.run()
+    #cd.lines()
+    cd.boxes()
 
 
 

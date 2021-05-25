@@ -3,8 +3,9 @@
 #set -x
 
 
-experiments=("env1TD3e0" "env1TD3l1" "env1TD3l5" "env2TD3e0" "env2TD3l1" "env2TD3l5" "env3TD3e0" "env3TD3l1" "env3TD3l5")
-runs=20
+#experiments=("env1TD3e0" "env1TD3l1" "env1TD3l5" "env2TD3e0" "env2TD3l1" "env2TD3l5" "env3TD3e0" "env3TD3l1" "env3TD3l5")
+experiments=("env1112TD3l1" "env111TD3l1")
+runs=10
 checkpoints=3
 
 

@@ -80,8 +80,6 @@ class ForagingEnv(gym.Env):
 
         self.start_time = self.robot.get_sim_time()
 
-        # TODO: randomize position
-
         sensors = self.get_infrared()
         color_y, color_x = self.detect_color()
         sensors = np.append(sensors, [color_y, color_x])
@@ -144,7 +142,7 @@ class ForagingEnv(gym.Env):
         reward = food_reward + sight
 
         #print('actions ', actions)
-        #print(sensors, 'food ' ,food_reward,  ' sight ',sight)
+        #print(sensors)
 
         # if episode is over
         if self.current_step == episode_length-1 or collected_food == self.max_food:
@@ -154,7 +152,7 @@ class ForagingEnv(gym.Env):
 
         self.current_step += 1
 
-        self.exp_manager.register_step(food_reward+sight)
+        self.exp_manager.register_step(reward)
 
         return sensors.astype(np.float32), reward, self.done, info
 
@@ -195,8 +193,8 @@ class ForagingEnv(gym.Env):
         if cv2.countNonZero(mask) > 0:
             y = np.where(mask == 255)[0]
             x = np.where(mask == 255)[1]
-            avg_y = sum(y) / len(y)
-            avg_x = sum(x) / len(x)
+            avg_y = sum(y) / len(y) #/ 127
+            avg_x = sum(x) / len(x) #/ 127
 
         else:
             avg_y = 0

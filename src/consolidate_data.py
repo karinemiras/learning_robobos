@@ -17,7 +17,7 @@ class ConsolidateData:
 
         self.experiments = experiments
         self.runs = runs
-        self.dir = 'experiments/'
+        self.dir = 'experiments/old/'
 
     def run(self):
 
@@ -61,7 +61,7 @@ class ConsolidateData:
                                 rewards=('rewards', 'mean'),
                                 step_success=('step_success', 'mean')
                             ).reset_index()
-                df_avg_intra['duration'] = round(df_avg_intra['duration'] / 1000/ 60, 1)
+                df_avg_intra['duration'] = round(df_avg_intra['duration'] / 1000 / 60, 1)
 
                 pprint.pprint(df_avg_intra)
 
@@ -116,7 +116,8 @@ class ConsolidateData:
                                     ).reset_index()
 
 
-        full_data_agreg.to_csv(f'{self.dir}consolidated.csv')
+        full_data_agreg.to_csv(f'{self.dir}full_data_agreg.csv')
+        full_data.to_csv(f'{self.dir}full_data.csv')
 
 
     def recover_latest_checkpoint(self, experiment_name, run):
@@ -138,13 +139,17 @@ class ConsolidateData:
 
 
 cd = ConsolidateData(
-        experiments=["forageTD3e0",
-                     "forageTD3e1",
-                     "forageTD3e2",
-                     "forageTD3l1",
-                     "forageTD3l5"
+        experiments=["env1TD3e0",
+                     "env1TD3l1",
+                     "env1TD3l5",
+                     "env2TD3e0",
+                     "env2TD3l1",
+                     "env2TD3l5",
+                     "env3TD3e0",
+                     "env3TD3l1",
+                     "env3TD3l5"
                      ],
-        runs=range(1, 4+1)
+        runs=range(1, 20+1)
 )
 
 cd.run()

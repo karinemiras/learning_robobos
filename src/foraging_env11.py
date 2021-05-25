@@ -7,7 +7,7 @@ from gym import spaces
 import numpy as np
 import os
 import time
-import random
+import math
 
 import robobo
 
@@ -30,6 +30,8 @@ class ForagingEnv(gym.Env):
         self.config = config
 
         self.max_food = 7
+        self.food_reward = 10
+        self.sight_reward = 0.1
 
         # init
         self.done = False
@@ -41,10 +43,10 @@ class ForagingEnv(gym.Env):
 
         # Define action and sensors space
         self.action_space = spaces.Box(low=0, high=1,
-                                       shape=(3,), dtype=np.float32)
+                                       shape=(2,), dtype=np.float32)
         # why high and low?
         self.observation_space = spaces.Box(low=0, high=1,
-                                            shape=(7,), dtype=np.float32)
+                                            shape=(6,), dtype=np.float32)
 
         self.robot = False
         while not self.robot:
@@ -79,10 +81,26 @@ class ForagingEnv(gym.Env):
 
         self.start_time = self.robot.get_sim_time()
 
+        # TODO: randomize position
+
         sensors = self.get_infrared()
-        prop_green_points, color_y, color_x = self.detect_color()
-        prop_total_success = 0
-        sensors = np.append(sensors, [prop_green_points, color_y, color_x, prop_total_success])
+        color_y, color_x = self.detect_color()
+
+        # use fucntion for this!
+        if self.exp_manager.config.train_or_test == 'train':
+            # train
+            if self.exp_manager.mode_train_validation == 'train':
+                episode_length = self.config.episode_train_steps
+            # validation
+            else:
+                episode_length = self.config.episode_validation_steps
+        else:
+            # final test
+            episode_length = self.config.episode_test_steps
+        # use fucntion for this!
+
+
+        sensors = np.append(sensors, [color_y, color_x, self.current_step/episode_length])
 
         return np.array(sensors).astype(np.float32)
 
@@ -94,21 +112,22 @@ class ForagingEnv(gym.Env):
 
         action_left = actions[0]
         action_right = actions[1]
-        action_millis = actions[2]
+        #action_millis = actions[2]
 
         left = action_left * (self.config.max_left - self.config.min_left) + self.config.min_left
         right = action_right * (self.config.max_right - self.config.min_right) + self.config.min_right
 
-        freedom_millis = self.config.max_millis - self.config.min_millis
-        millis = self.config.min_millis + freedom_millis * action_millis
+        #freedom_millis = self.config.max_millis - self.config.min_millis
+        #millis = self.config.min_millis + freedom_millis * action_millis
 
         # performs actions
 
-        self.robot.move(left, right, millis)
+        #self.robot.move(left, right, millis)
+        self.robot.move(left, right)
 
         # gets states
         sensors = self.get_infrared()
-        prop_green_points, color_y, color_x = self.detect_color()
+        color_y, color_x = self.detect_color()
         collected_food = self.robot.collected_food()
 
         if self.exp_manager.config.train_or_test == 'train':
@@ -125,31 +144,30 @@ class ForagingEnv(gym.Env):
         # calculates rewards
 
         if collected_food - self.total_success > 0:
-            food_reward = 10
+            food_reward = self.food_reward
         else:
             food_reward = 0
 
         self.total_success = collected_food
 
-        prop_total_success = self.total_success/self.max_food
 
-        if prop_green_points > 0:
-            sight = prop_green_points*10
+        if color_y and color_x:
+            sight = self.sight_reward
+
+            if self.current_step > 10:
+                sight = sight/math.log(self.current_step, 2)
+
         else:
-            sight = -1
+            sight = -self.sight_reward
 
-        if sight>=0:
-            penal_sight = max(0.05, sight * prop_total_success)
-        else:
-            penal_sight = min(-0.05, (sight*(1 - prop_total_success)/10))
+        sensors = np.append(sensors, [color_y, color_x, self.current_step/episode_length])
 
-        sensors = np.append(sensors, [prop_green_points, color_y, color_x, prop_total_success])
+        reward = food_reward + sight
 
-        reward = food_reward + penal_sight
+        #print(sight)
 
-        #print(reward)
         #print('actions ', actions)
-        #print('sensors', sensors)
+        #print(sensors)
 
         # if episode is over
         if self.current_step == episode_length-1 or collected_food == self.max_food:
@@ -196,21 +214,17 @@ class ForagingEnv(gym.Env):
 
         # mask of green
         mask = cv2.inRange(hsv, (36, 25, 25), (70, 255, 255))
-        number_green_points = cv2.countNonZero(mask)
-        total_points = 16384 #128*128
-        prop_green_points = number_green_points/total_points
-        #cv2.imwrite('imgs/'+str(self.current_step)+"_"+str(prop_green_points)+".png", image)
 
-        if number_green_points > 0:
+        if cv2.countNonZero(mask) > 0:
             y = np.where(mask == 255)[0]
             x = np.where(mask == 255)[1]
             avg_y = sum(y) / len(y) #/ 127
-            avg_x = sum(x) / len(x)# / 127
+            avg_x = sum(x) / len(x) #/ 127
 
         else:
             avg_y = 0
             avg_x = 0
 
-        # if green detected, returns proportion of green points and average positions of y and x
-        return prop_green_points, avg_y, avg_x
+        # if green detected, returns average positions of y and x
+        return avg_y, avg_x
 
