@@ -17,7 +17,7 @@ class ConsolidateData:
 
         self.experiments = experiments
         self.runs = runs
-        self.dir = 'experiments/old/'
+        self.dir = 'experiments/eng/'
 
     def run(self):
 
@@ -63,11 +63,11 @@ class ConsolidateData:
                             ).reset_index()
                 df_avg_intra['duration'] = round(df_avg_intra['duration'] / 1000 / 60, 1)
 
-                pprint.pprint(df_avg_intra)
-
                 df_avg_intra['episode'] = range(1, len(df_avg_intra)+1)
                 df_avg_intra['experiment'] = experiment
                 df_avg_intra['run'] = run
+                pprint.pprint(df_avg_intra)
+
                 full_data = pd.concat([full_data, df_avg_intra])
 
         def q25(x):
@@ -139,17 +139,19 @@ class ConsolidateData:
 
 
 cd = ConsolidateData(
-        experiments=["env1TD3e0",
-                     "env1TD3l1",
-                     "env1TD3l5",
-                     "env2TD3e0",
-                     "env2TD3l1",
-                     "env2TD3l5",
-                     "env3TD3e0",
-                     "env3TD3l1",
-                     "env3TD3l5"
+        experiments=[
+                     # "env1TD3e0",
+                     # "env1TD3l1",
+                     # "env1TD3l5",
+                     # "env2TD3e0",
+                     # "env2TD3l1",
+                     # "env2TD3l5",
+                     # "env3TD3e0",
+                     # "env3TD3l1",
+                     # "env3TD3l5"
+    "env1112TD3l1", "env111TD3l1"
                      ],
-        runs=range(1, 20+1)
+        runs=range(1, 10+1)
 )
 
 cd.run()

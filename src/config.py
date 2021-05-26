@@ -67,7 +67,7 @@ class Config:
 
         self.parser.add_argument(
             '--training-timesteps',
-            default=15000, type=int,
+            default=30000, type=int,
             help="Number of total time steps in the training."
         )
 
@@ -87,13 +87,13 @@ class Config:
 
         self.parser.add_argument(
             '--min-millis',
-            default=100, type=int,
+            default=500, type=int,
             help="Minimum duration of actions."
         )
 
         self.parser.add_argument(
             '--max-millis',
-            default=500, type=int,
+            default=1000, type=int,
             help="Maximum duration of actions."
         )
 
