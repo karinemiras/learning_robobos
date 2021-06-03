@@ -138,7 +138,7 @@ class HardwareRobobo(Robobo):
         self._set_env()
         self._pan_tilt_srv(Int16(pan_position), Int8(pan_speed), Int16(pan_blockid), Int16(0), Int8(0), Int16(0))
 
-    def set_phone_tilt(self, tilt_position, tilt_speed, tilt_blockid=1):
+    def set_phone_tilt(self, tilt_position, tilt_speed=100, tilt_blockid=1):
         """
         Command the robot to move the smartphone holder in the vertical (tilt) axis.
         This function is asyncronous.

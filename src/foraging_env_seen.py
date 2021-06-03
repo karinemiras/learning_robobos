@@ -141,11 +141,13 @@ class ForagingEnv(gym.Env):
 
       #  print(left, right, millis)
 
-        if self.config.sim_hard == 'sim':
+        if self.config.sim_hard == 'hard':
             left = int(left)
             right = int(right)
             millis = int(millis)
 
+       # print(left, right, millis)
+        
         self.robot.move(left, right, millis)
 
         # gets states
@@ -216,6 +218,16 @@ class ForagingEnv(gym.Env):
     def get_infrared(self):
 
         irs = np.asarray(self.robot.read_irs()).astype(np.float32)
+
+        #np.set_printoptions(suppress=True)
+        if self.config.sim_hard == 'sim':
+            # sets threshold for sensors ghosts : change to lambda later
+            for idx, val in np.ndenumerate(irs):
+                if irs[idx]>0:
+                    irs[idx] = 1
+                else:
+                    irs[idx] = 0
+        print('a',irs)
 
         irs[irs != 0] = 1
 
