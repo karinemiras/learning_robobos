@@ -19,9 +19,8 @@ class PlotData:
         self.anal = anal
         self.experiments =  experiments
 
-        self.dir = 'experiments/old/'
+        self.dir = 'experiments/'
         self.measures = ['steps', 'duration', 'total_success', 'rewards', 'step_success']
-        self.measures = ['step_success']
         self.measures_limits = [[70, 150], [5, 13], [-1.5, 9.5], [-10, 80], [-10, 130]]
         self.metrics = ['max', 'mean', 'min', 'median']
 
@@ -85,9 +84,9 @@ class PlotData:
             plot=sb.boxplot(x='experiment', y=measure, data=full_data_agreg) # hue='Style',
 
             # remove bonferroni correction?
-            add_stat_annotation(plot, data=full_data_agreg, x='experiment', y=measure,# order=order,
-                                box_pairs=tests_combinations,
-                                test='Wilcoxon', text_format='star', loc='inside', verbose=2)
+            # add_stat_annotation(plot, data=full_data_agreg, x='experiment', y=measure,# order=order,
+            #                     box_pairs=tests_combinations,
+            #                     test='Wilcoxon', text_format='star', loc='inside', verbose=2)
 
             plt.title(self.anal)
             plot.get_figure().savefig(f'{self.dir}{self.anal}_{measure}_box.png')
@@ -95,23 +94,15 @@ class PlotData:
 
 
 analysis = {
-     'env1': ['env1TD3e0', 'env1TD3l1']#, 'env1TD3l5'],
-    # 'env2': ['env2TD3e0', 'env2TD3l1', 'env2TD3l5'],
-    # 'env3': ['env3TD3e0', 'env3TD3l1', 'env3TD3l5']
+     'envseen': ["envseenTD3l3" ,"envmseenTD3l3"],
+     'envmseen': [ "envseenTD3l3", "envmseenTD3l3"],
 }
-
-# analysis = {
-#     'eng': ["env1112TD3l1", "env111TD3l1"]
-#
-# }
-
-
 
 
 
 for anal in analysis:
     cd = PlotData(anal, analysis[anal])
-   # cd.lines()
+    cd.lines()
     cd.boxes()
 
 

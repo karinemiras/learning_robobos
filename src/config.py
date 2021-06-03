@@ -7,12 +7,25 @@ class Config:
 
         self.parser = argparse.ArgumentParser()
 
+        self.parser.add_argument(
+            '--sim-hard',
+            default='sim', type=str,
+            help="sim for simulation and hard for hardware"
+        )
+
+        self.parser.add_argument(
+            '--robot-ip-hard',
+            default='10.15.3.116', type=str,
+            help="Ip of the robot in hardware."
+        )
+
+
         # simulation
 
         self.parser.add_argument(
             '--robot-ip',
             default='145.108.196.188', type=str,
-            help="Ip of the robot."
+            help="Ip of the robot in simulation."
         )
 
         self.parser.add_argument(
@@ -73,7 +86,7 @@ class Config:
 
         self.parser.add_argument(
             '--checkpoint-timesteps',
-            default=5000, type=int,
+            default=5000, type=int, 
             help="After how many time steps sabes checkpoint."
         )
 
@@ -98,25 +111,25 @@ class Config:
         )
 
         self.parser.add_argument(
-            '--min-left',
+            '--min-speed',
             default=-3, type=int,
-            help="Minimum accelaration of left wheel (backwards)."
+            help="Minimum accelaration of the left wheels in simulation (backwards)."
         )
 
         self.parser.add_argument(
-            '--max-left',
+            '--max-speed',
             default=3, type=int,
-            help="Maximum accelaration of left wheel (forward)."
+            help="Maximum accelaration of the wheels in simulation (forward)."
         )
 
         self.parser.add_argument(
-            '--min-right',
-            default=-3, type=int,
-            help="Minimum accelaration of right wheel (backwards)."
+            '--min-speed-hard',
+            default=-100, type=int,
+            help="Minimum accelaration of the left wheels in hardware (backwards)."
         )
 
         self.parser.add_argument(
-            '--max-right',
-            default=3, type=int,
-            help="Maximum accelaration of right wheel (forward)."
+            '--max-speed-hard',
+            default=100, type=int,
+            help="Maximum accelaration of the wheels in hardware (forward)."
         )

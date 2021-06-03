@@ -5,9 +5,9 @@ import os
 import time
 import traceback
 
-from stable_baselines.common.vec_env import DummyVecEnv
-from stable_baselines import TD3
-from stable_baselines.common.callbacks import BaseCallback
+from stable_baselines3.common.vec_env import DummyVecEnv
+from stable_baselines3 import TD3
+from stable_baselines3.common.callbacks import BaseCallback
 
 from info_log import Log
 
@@ -18,7 +18,7 @@ class CustomCallback(BaseCallback):
 
     :param verbose: (int) Verbosity level 0: not output 1: info 2: debug
     """
-    def __init__(self,experiment_manager=None,  verbose=0):
+    def __init__(self,experiment_manager=None,  verbose=1):
         super(CustomCallback, self).__init__(verbose)
         # Those variables will be accessible in the callback
         # (they are defined in the base class)
@@ -63,7 +63,6 @@ class CustomCallback(BaseCallback):
 
         :return: (bool) If the callback returns False, training is aborted early.
         """
-
         self.validate_policy()
         self.save_checkpoint()
 
@@ -158,11 +157,11 @@ class ExperimentManager:
         self.log.write(f'STARTING checkpoint {self.current_checkpoint+1}')
 
         try:
-            self.model.learn(total_timesteps=self.config.training_timesteps,
-                             log_interval=5, # in episodes
-                             reset_num_timesteps=False,
-                             callback=callback)
 
+            remaining_training_timesteps = self.config.training_timesteps-len(self.results_episodes)
+            self.model.learn(total_timesteps=remaining_training_timesteps,
+                             log_interval=5, #in episodes
+                             callback=callback)
         except Exception as error:
             self.log.write(f'ERROR: {traceback.format_exc()}')
 

@@ -49,7 +49,11 @@ class ForagingEnv(gym.Env):
 
         self.robot = False
         while not self.robot:
-            self.robot = robobo.SimulationRobobo().connect(address=self.config.robot_ip, port=self.config.robot_port)
+            if self.config.sim_hard == 'sim':
+                self.robot = robobo.SimulationRobobo().connect(address=self.config.robot_ip, port=self.config.robot_port)
+            else:
+                self.robot = robobo.HardwareRobobo(camera=True).connect(address=self.config.robot_ip_hard)
+
             time.sleep(1)
 
     def reset(self):
@@ -66,19 +70,28 @@ class ForagingEnv(gym.Env):
 
         self.exp_manager.register_episode()
 
-        self.robot.stop_world()
-        while self.robot.is_simulation_running():
-            pass
+        if self.config.sim_hard == 'sim':
+            self.robot.stop_world()
+            while self.robot.is_simulation_running():
+                pass
 
-        self.robot.set_position()
+            self.robot.set_position()
 
-        self.robot.play_simulation()
-        while self.robot.is_simulation_stopped():
-            pass
+            self.robot.play_simulation()
+            while self.robot.is_simulation_stopped():
+                pass
 
-        self.robot.set_phone_tilt(-100)
+        # TODO: fix correct values
+        if self.config.sim_hard == 'sim':
+            self.robot.set_phone_tilt(-100)
+        else:
+            self.robot.set_phone_tilt(92)
 
-        self.start_time = self.robot.get_sim_time()
+        if self.config.sim_hard == 'sim':
+            # TODO: fix this
+            self.start_time = 0#self.robot.get_sim_time()
+        else:
+            self.start_time = 0
 
         sensors = self.get_infrared()
         color_y, color_x = self.detect_color()
@@ -87,7 +100,10 @@ class ForagingEnv(gym.Env):
         return np.array(sensors).astype(np.float32)
 
     def normal(self, var):
-        return var * (self.config.max_left - self.config.min_left) + self.config.min_left
+        if self.config.sim_hard == 'sim':
+            return var * (self.config.max_speed - self.config.min_speed) + self.config.min_speed
+        else:
+            return var * (self.config.max_speed_hard - self.config.min_speed_hard) + self.config.min_speed_hard
 
     def step(self, actions):
 
@@ -125,13 +141,21 @@ class ForagingEnv(gym.Env):
 
       #  print(left, right, millis)
 
+        if self.config.sim_hard == 'sim':
+            left = int(left)
+            right = int(right)
+            millis = int(millis)
 
         self.robot.move(left, right, millis)
 
         # gets states
         sensors = self.get_infrared()
         color_y, color_x = self.detect_color()
-        collected_food = self.robot.collected_food()
+
+        if self.config.sim_hard == 'sim':
+            collected_food = self.robot.collected_food()
+        else:
+            collected_food = 0
 
         if self.exp_manager.config.train_or_test == 'train':
             # train
@@ -168,7 +192,7 @@ class ForagingEnv(gym.Env):
         # if episode is over
         if self.current_step == episode_length-1 or collected_food == self.max_food:
             self.done = True
-            self.duration = self.robot.get_sim_time() - self.start_time
+            self.duration = 0#self.robot.get_sim_time() - self.start_time
             self.food_print()
 
         self.current_step += 1

@@ -162,7 +162,7 @@ class ForagingEnv(gym.Env):
         # if episode is over
         if self.current_step == episode_length-1 or collected_food == self.max_food:
             self.done = True
-            self.duration = self.robot.get_sim_time() - self.start_time
+            self.duration = 0#self.robot.get_sim_time() - self.start_time
             self.food_print()
 
         self.current_step += 1
