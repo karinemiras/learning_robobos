@@ -214,10 +214,10 @@ class ForagingEnv(gym.Env):
         irs = np.asarray(self.robot.read_irs()).astype(np.float32)
 
         #np.set_printoptions(suppress=True)
-        if self.config.sim_hard == 'sim':
+        if self.config.sim_hard == 'hard':
             # sets threshold for sensors ghosts : change to lambda later
             for idx, val in np.ndenumerate(irs):
-                if irs[idx]>0:
+                if irs[idx] >= 100:
                     irs[idx] = 1
                 else:
                     irs[idx] = 0
@@ -239,22 +239,38 @@ class ForagingEnv(gym.Env):
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
         # mask of green
-        mask = cv2.inRange(hsv, (36, 25, 25), (70, 255, 255))
-        number_green_points = cv2.countNonZero(mask)
-        total_points = 16384 #128*128
-        prop_green_points = number_green_points/total_points
-        #cv2.imwrite(str(random.randint(0, 100000))+"_"+str(prop_green_points)+".png", image)
+        mask = cv2.inRange(hsv, (45, 70, 70), (85, 255, 255))
 
-        if number_green_points > 0:
+        cv2.imwrite("imgs/" + str(self.current_step) + "mask.png", mask)
+        cv2.imwrite("imgs/" + str(self.current_step) + "img.png", image)
+
+        size_y = len(image)
+        size_x = len(image[0])
+
+        number_green_points = cv2.countNonZero(mask)
+        total_points = size_y * size_x
+        prop_green_points = number_green_points / total_points
+
+        #print('')
+        #print('size', size_y, size_x, total_points)
+
+        if cv2.countNonZero(mask) > 0:
+            # print(np.where(mask == 255))
             y = np.where(mask == 255)[0]
             x = np.where(mask == 255)[1]
-            avg_y = sum(y) / len(y) / 127
-            avg_x = sum(x) / len(x) / 127
+
+            # average normalized by image size
+            avg_y = sum(y) / len(y) / (size_y - 1)
+            avg_x = sum(x) / len(x) / (size_x - 1)
 
         else:
             avg_y = 0
             avg_x = 0
 
-        # if green detected, returns proportion of green points and average positions of y and x
+        # cv2.imwrite("imgs/"+str(random.randint(0, 100000))+"_"+str(avg_x)+"_"+str(avg_y)+".png", image)
+
+        # if green detected, returns average positions of y and x
+        #print(avg_x, avg_y, prop_green_points)
+
         return prop_green_points, avg_y, avg_x
 
