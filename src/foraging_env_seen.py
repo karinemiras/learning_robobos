@@ -9,6 +9,7 @@ import os
 import time
 
 import robobo
+from action_selection import ActionSelection
 
 # TODO: fix this?
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
@@ -46,6 +47,8 @@ class ForagingEnv(gym.Env):
         # why high and low?
         self.observation_space = spaces.Box(low=0, high=1,
                                             shape=(5,), dtype=np.float32)
+
+        self.action_selection = ActionSelection(self.config)
 
         self.robot = False
         while not self.robot:
@@ -99,55 +102,13 @@ class ForagingEnv(gym.Env):
 
         return np.array(sensors).astype(np.float32)
 
-    def normal(self, var):
-        if self.config.sim_hard == 'sim':
-            return var * (self.config.max_speed - self.config.min_speed) + self.config.min_speed
-        else:
-            return var * (self.config.max_speed_hard - self.config.min_speed_hard) + self.config.min_speed_hard
-
     def step(self, actions):
 
         info = {}
 
         # fetches and transforms actions
+        left, right, millis, apply_reward = self.action_selection.select(actions)
 
-        action_move = actions[0]
-        action_left = actions[1]
-        action_right = actions[2]
-        action_millis = actions[3]
-
-        # performs actions
-        choice = actions[0:3]
-       # print('')
-       # print(choice)
-        choice = np.argmax(choice)
-       # print(choice)
-
-        # move
-        if choice == 0:
-            left = self.normal(action_move)
-            right = self.normal(action_move)
-        # turn left
-        if choice == 1:
-            left = self.normal(action_left)
-            right = 0
-        # tur right
-        if choice == 2:
-            left = 0
-            right = self.normal(action_right)
-
-        freedom_millis = self.config.max_millis - self.config.min_millis
-        millis = self.config.min_millis + freedom_millis * action_millis
-
-      #  print(left, right, millis)
-
-        if self.config.sim_hard == 'hard':
-            left = int(left)
-            right = int(right)
-            millis = int(millis)
-
-       # print(left, right, millis)
-        
         self.robot.move(left, right, millis)
 
         # gets states
@@ -187,9 +148,8 @@ class ForagingEnv(gym.Env):
         sensors = np.append(sensors, [color_y, color_x])
 
         reward = food_reward + sight
-
-        #print('actions ', actions)
-        #print(sensors)
+        if reward > 0:
+            reward = reward * apply_reward
 
         # if episode is over
         if self.current_step == episode_length-1 or collected_food == self.max_food:
@@ -227,7 +187,7 @@ class ForagingEnv(gym.Env):
                     irs[idx] = 1
                 else:
                     irs[idx] = 0
-        print('a',irs)
+        #print('a',irs)
 
         irs[irs != 0] = 1
 
@@ -247,7 +207,7 @@ class ForagingEnv(gym.Env):
         # mask of green
         mask = cv2.inRange(hsv, (45, 70, 70), (85, 255, 255))
 
-        np.set_printoptions(threshold=sys.maxsize)
+        #np.set_printoptions(threshold=sys.maxsize)
         # pprint.pprint(mask)
 
         #cv2.imwrite("imgs/" + str(self.current_step)+ "mask.png", mask)
