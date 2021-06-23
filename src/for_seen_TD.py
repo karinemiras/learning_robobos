@@ -7,11 +7,10 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
 from config import Config
 from experiment_manager import ExperimentManager
-from foraging_env_seen import ForagingEnv
+from foraging_seen import ForagingEnv
 
 from stable_baselines3 import TD3
 from stable_baselines3.td3.policies import MlpPolicy
-#from stable_baselines.ddpg.noise import NormalActionNoise
 from stable_baselines3.common.noise import NormalActionNoise
 
 config = Config()
