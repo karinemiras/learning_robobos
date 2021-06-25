@@ -1,8 +1,0 @@
-prefix=/root/projects/install
-
-Name: robobo_msgs
-Description: Description of robobo_msgs
-Version: 1.2.0
-Cflags: -I/root/projects/install/include
-Libs: -L/root/projects/install/lib 
-Requires: message_runtime
