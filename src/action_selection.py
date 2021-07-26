@@ -9,8 +9,10 @@ class ActionSelection:
 
         pygame.init()
         pygame.joystick.init()
-        self.joystick = pygame.joystick.Joystick(0)
-        self.joystick.init()
+
+        if self.config.human_interference:
+            self.joystick = pygame.joystick.Joystick(0)
+            self.joystick.init()
 
     def normalize_move(self, var):
         if self.config.sim_hard == 'sim':
@@ -54,6 +56,9 @@ class ActionSelection:
         return left, right, millis, apply_reward
 
     def is_human_active(self):
+        if not self.config.human_interference:
+            return False
+        
         pygame.event.get()
         if int(self.joystick.get_button(3)) == 1 or \
                 int(self.joystick.get_button(0)) == 1 or \
@@ -102,7 +107,7 @@ class ActionSelection:
             # makes it positive, once joystick-directional-up returns a negative number
             action_millis = self.joystick.get_axis(1)*-1
 
-        # uses max duration if human does not choose
+        # uses min duration if human does not choose
         else:
             action_millis = 0
 

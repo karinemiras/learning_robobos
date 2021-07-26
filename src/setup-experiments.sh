@@ -4,7 +4,8 @@
 
 
 num_terminals=20
-experiments=("envseenTD3l3" "envmseenTD3l3")
+#experiments=("forseenTD" "formseenTD")
+experiments=("forseenSAC" "formseenSAC")
 runs=20
 checkpoints=6
 start_port=20000
@@ -69,7 +70,7 @@ while true
              value=$(grep "SAVED checkpoint" $file|tail -n1|sed -E "s/\SAVED checkpoint ([0-9]+).*/\1/g");
              echo " ${value} "
 
-             # unfinished
+             # unfinished TODO change != to < ?
              if [ "$value" != "$checkpoints" ]; then
 
                 # only if not already running

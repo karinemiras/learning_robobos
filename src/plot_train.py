@@ -17,7 +17,7 @@ class ConsolidateData:
 
         self.experiments = experiments
         self.runs = runs
-        self.dir = 'experiments/new_env_greenmile/'
+        self.dir = 'experiments/#base1/'
 
     def run(self):
 
@@ -49,6 +49,10 @@ class ConsolidateData:
 
                 df_agreg = df_agreg.merge(step_success, on='episode')
 
+                #pprint.pprint(df_agreg)
+
+                df_agreg['moving'] = df_agreg.iloc[:, 3].rolling(window=10).mean()
+
                 pprint.pprint(df_agreg)
 
                 df_agreg['experiment'] = experiment
@@ -71,7 +75,10 @@ class ConsolidateData:
                                     total_success_std=('total_success', 'std'),
                                     rewards_mean=('rewards', 'mean'),
                                     rewards_max=('rewards', 'max'),
-                                    rewards_std=('rewards', 'std')
+                                    rewards_std=('rewards', 'std'),
+            moving_mean=('moving', 'mean'),
+            moving_max=('moving', 'max'),
+            moving_std=('moving', 'std')
                                     ).reset_index()
 
         pprint.pprint(full_data_agreg)
@@ -79,7 +86,7 @@ class ConsolidateData:
         fig, ax = plt.subplots()
 
         for key, grp in full_data_agreg.groupby(['experiment']):
-            ax = grp.plot(ax=ax, kind='line', x='episode', y='total_success_mean' , label=key)
+            ax = grp.plot(ax=ax, kind='line', x='episode', y='moving_mean' , label=key)
 
         plt.legend(loc='best')
         plt.savefig(f'{self.dir}train_success_mean2.png')
@@ -103,13 +110,10 @@ class ConsolidateData:
 
 
 cd = ConsolidateData(
-        experiments=[#"forageTD3e0",
-                     #"forageTD3e1",
-                    # "forageTD3e2",
-                     "forageTD3l1"#,
-                    # "forageTD3l5"
+        experiments=["for_seen_TD",
+                     "for_mseen_TD"
                      ],
-        runs=8
+        runs=1
 )
 
 cd.run()

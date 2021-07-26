@@ -20,11 +20,12 @@ class PlotData:
 
         print(experiments)
 
-        self.dir = 'experiments/'
+        self.dir = 'experiments/#base1/'
         #self.measures = ['steps', 'duration', 'total_success', 'rewards', 'step_success']
         self.measures = ['steps', 'total_success', 'rewards', 'step_success']
+        self.measures = [ 'total_success' ]
         #self.measures_limits = [[70, 150], [5, 13], [-1.5, 9.5], [-10, 80], [-10, 130]]
-        self.measures_limits = [[70, 150], [-1.5, 9.5], [-10, 80], [-10, 130]]
+        self.measures_limits = [ [-1.5, 9.5]]
         self.metrics = ['max', 'mean', 'min', 'median']
         self.clrs = ['#CC0000', '#006600']
 
@@ -65,6 +66,9 @@ class PlotData:
                     plt.ylabel(f'{measure}_{metric}')
                     plt.title(self.anal)
                     ax.legend()
+
+                    if metric == 'total_success':
+                        plt.plot([1, 30], [7, 7])
 
                 plt.grid()
                 plt.savefig(f'{self.dir}{self.anal}_{measure}_{metric}.png')
@@ -110,7 +114,7 @@ analysis = {
 for anal in analysis:
     cd = PlotData(anal, analysis[anal])
     cd.lines()
-    cd.boxes()
+    #cd.boxes()
 
 
 

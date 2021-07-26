@@ -378,4 +378,4 @@ class SimulationRobobo(Robobo):
             vrep.simxCallScriptFunction(self._clientID, "Food", vrep.sim_scripttype_childscript, "remote_get_collected_food",
                                         [],[],[],bytearray(),vrep.simx_opmode_blocking)
         )
-        return ints[0]
+        return ints[0], floats[0]

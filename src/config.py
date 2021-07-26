@@ -19,7 +19,12 @@ class Config:
             help="Ip of the robot in hardware."
         )
 
-
+        self.parser.add_argument(
+            '--human-interference',
+            default=0, type=int,
+            help="If human interference is enabled, using joystick. 0=False and 1=True"
+        )
+        
         # simulation
 
         self.parser.add_argument(
@@ -38,7 +43,7 @@ class Config:
 
         self.parser.add_argument(
             '--episode-train-steps',
-            default=100, type=int,
+            default=130, type=int,#100
             help="Maximum number of steps of an episode while training."
         )
 
@@ -50,19 +55,19 @@ class Config:
 
         self.parser.add_argument(
             '--episode-test-steps',
-            default=170, type=int,
+            default=130, type=int,
             help="Maximum duration of an episode while making final tests."
         )
 
         self.parser.add_argument(
-            '---validation-freq',
-            default=1000, type=int,
-            help="After how many steps the policy should be validation."
+            '--validation-freq',
+            default=1000, type=int, #1000
+            help="After how many steps the policy should be validated."
         )
 
         self.parser.add_argument(
-            '---number-validations',
-            default=5, type=int,
+            '--number-validations',
+            default=0, type=int, #10#5
             help="Number of episodes to repeat the validation of the policy during training."
         )
 
@@ -73,7 +78,7 @@ class Config:
         )
 
         self.parser.add_argument(
-            '---number-tests',
+            '--number-tests',
             default=3, type=int,
             help="Number of episodes to repeat the test of the policy after training."
         )
@@ -86,7 +91,7 @@ class Config:
 
         self.parser.add_argument(
             '--checkpoint-timesteps',
-            default=5000, type=int, 
+            default=1000, type=int,
             help="After how many time steps sabes checkpoint."
         )
 

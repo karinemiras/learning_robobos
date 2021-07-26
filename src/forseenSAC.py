@@ -7,10 +7,10 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
 from config import Config
 from experiment_manager import ExperimentManager
-from foraging_mseen import ForagingEnv
+from foraging_seen import ForagingEnv
 
-from stable_baselines3 import TD3
-from stable_baselines3.td3.policies import MlpPolicy
+from stable_baselines3 import SAC
+from stable_baselines3.sac.policies import MlpPolicy
 from stable_baselines3.common.noise import NormalActionNoise
 
 
@@ -22,13 +22,19 @@ foraging_env = ForagingEnv(config=config)
 n_actions = foraging_env.action_space.shape[-1]
 action_noise = NormalActionNoise(mean=np.zeros(n_actions),
                                  sigma=0.1 * np.ones(n_actions))
-model = TD3(MlpPolicy,
+
+def load(name, env):
+    return SAC.load(name, env)
+
+model = SAC(MlpPolicy,
             foraging_env,
             action_noise=action_noise,
-           # random_exploration=0,
             learning_rate=0.0003,
             verbose=1)
 
+
 ExperimentManager(config=config,
                   model=model,
-                  environment=foraging_env).run()
+                  environment=foraging_env,
+                  load=load
+                  ).run()

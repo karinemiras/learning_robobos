@@ -112,11 +112,13 @@ class ExperimentManager:
     def __init__(self,
                  config,
                  model,
-                 environment):
+                 environment,
+                 load):
 
         self.config = config
         self.model = model
         self.env = environment
+        self.load = load
         self.env.exp_manager = self
         self.log = Log(self.config.experiment_name)
 
@@ -136,14 +138,12 @@ class ExperimentManager:
             self.results_episodes.append([
                                         self.current_episode,
                                         self.env.current_step,
-                                        self.env.duration,
                                         self.env.total_success,
                                         rewards])
         else:
             self.results_episodes_validation.append([
                                         self.current_episode,
                                         self.env.current_step,
-                                        self.env.duration,
                                         self.env.total_success,
                                         rewards])
 
@@ -207,7 +207,7 @@ class ExperimentManager:
 
                     # only recovers pickle if model also available
                     env2 = DummyVecEnv([lambda: self.env])
-                    self.model = TD3.load(f'{dir}/model_checkpoint_{checkpoints[attempts]}', env=env2)
+                    self.model = self.load(f'{dir}/model_checkpoint_{checkpoints[attempts]}', env=env2)
 
                     attempts = -1
 

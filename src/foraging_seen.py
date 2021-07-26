@@ -37,8 +37,6 @@ class ForagingEnv(gym.Env):
         self.done = False
         self.total_success = 0
         self.current_step = 0
-        self.duration = 0
-        self.start_time = None
         self.exp_manager = None
 
         # Define action and sensors space
@@ -69,7 +67,6 @@ class ForagingEnv(gym.Env):
         self.done = False
         self.total_success = 0
         self.current_step = 0
-        self.duration = 0
 
         self.exp_manager.register_episode()
 
@@ -89,12 +86,6 @@ class ForagingEnv(gym.Env):
             self.robot.set_phone_tilt(-100)
         else:
             self.robot.set_phone_tilt(92)
-
-        if self.config.sim_hard == 'sim':
-            # TODO: fix this
-            self.start_time = 0#self.robot.get_sim_time()
-        else:
-            self.start_time = 0
 
         sensors = self.get_infrared()
         color_y, color_x = self.detect_color()
@@ -116,7 +107,7 @@ class ForagingEnv(gym.Env):
         color_y, color_x = self.detect_color()
 
         if self.config.sim_hard == 'sim':
-            collected_food = self.robot.collected_food()
+            collected_food, aux  = self.robot.collected_food()
         else:
             collected_food = 0
 
@@ -148,13 +139,14 @@ class ForagingEnv(gym.Env):
         sensors = np.append(sensors, [color_y, color_x])
 
         reward = food_reward + sight
-        if reward > 0:
-            reward = reward * apply_reward
+
+        if self.config.human_interference:
+            if reward > 0:
+                reward = reward * apply_reward
 
         # if episode is over
         if self.current_step == episode_length-1 or collected_food == self.max_food:
             self.done = True
-            self.duration = 0#self.robot.get_sim_time() - self.start_time
             self.food_print()
 
         self.current_step += 1
@@ -207,39 +199,23 @@ class ForagingEnv(gym.Env):
         # mask of green
         mask = cv2.inRange(hsv, (45, 70, 70), (85, 255, 255))
 
-        #np.set_printoptions(threshold=sys.maxsize)
-        # pprint.pprint(mask)
-
         #cv2.imwrite("imgs/" + str(self.current_step)+ "mask.png", mask)
         #cv2.imwrite("imgs/" + str(self.current_step) + "img.png", image)
 
         size_y = len(image)
         size_x = len(image[0])
 
-        number_green_points = cv2.countNonZero(mask)
-        total_points = size_y * size_x
-        prop_green_points = number_green_points / total_points
-
-        #print('')
-        #print('size', size_y, size_x, total_points)
-
         if cv2.countNonZero(mask) > 0:
-            # print(np.where(mask == 255))
             y = np.where(mask == 255)[0]
             x = np.where(mask == 255)[1]
 
-            # average normalized by image size
+            # average positions normalized by image size
             avg_y = sum(y) / len(y) / (size_y - 1)
             avg_x = sum(x) / len(x) / (size_x - 1)
 
         else:
             avg_y = 0
             avg_x = 0
-
-        # cv2.imwrite("imgs/"+str(random.randint(0, 100000))+"_"+str(avg_x)+"_"+str(avg_y)+".png", image)
-
-        # if green detected, returns average positions of y and x
-        #print(avg_x, avg_y, prop_green_points)
 
         return avg_y, avg_x
 

@@ -3,5 +3,5 @@ from __future__ import absolute_import, print_function
 from .simulation import SimulationRobobo
 from .simulation_prey import SimulationRoboboPrey
 
-# use this line when experimenting in hardware
-from .hardware import HardwareRobobo
+# use this line ONLY when experimenting in hardware
+#from .hardware import HardwareRobobo

@@ -5,6 +5,7 @@ import pprint
 import pandas as pd
 import matplotlib.pyplot as plt
 import sys
+import traceback
 
 pd.set_option("display.max_rows", 99999)
 
@@ -17,7 +18,7 @@ class ConsolidateData:
 
         self.experiment = experiment
         self.runs = runs
-        self.dir = 'experiments/'
+        self.dir = 'experiments/#base1/'
 
     def run(self):
 
@@ -147,7 +148,7 @@ experiments =['for_seen_TD',
 for experiment in experiments:
     cd = ConsolidateData(
             experiment=experiment,
-            runs=range(1, 20+1)
+            runs=range(1, 1+1)#20
     )
 
     cd.run()

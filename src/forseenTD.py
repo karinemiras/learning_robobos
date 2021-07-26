@@ -21,13 +21,18 @@ foraging_env = ForagingEnv(config=config)
 n_actions = foraging_env.action_space.shape[-1]
 action_noise = NormalActionNoise(mean=np.zeros(n_actions),
                                  sigma=0.1 * np.ones(n_actions))
+
+def load(name, env):
+    return TD3.load(name, env)
+
 model = TD3(MlpPolicy,
             foraging_env,
             action_noise=action_noise,
-            #random_exploration=0,
             learning_rate=0.0003,
             verbose=1)
 
 ExperimentManager(config=config,
                   model=model,
-                  environment=foraging_env).run()
+                  environment=foraging_env,
+                  load=load
+                  ).run()
