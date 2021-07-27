@@ -138,8 +138,6 @@ class ForagingEnv(gym.Env):
         else:
             avoid_reward = 0
 
-        print(self.current_step, collected_hurt, avoid_reward)
-
         self.total_success = collected_food
         self.total_hurt = collected_hurt
 
@@ -172,9 +170,9 @@ class ForagingEnv(gym.Env):
 
     def food_print(self):
         if self.exp_manager.mode_train_validation == 'train':
-            print(f'food in episode {self.exp_manager.current_episode}: {self.total_success}')
+            print(f'food in episode {self.exp_manager.current_episode}: {self.total_success} hurt: {self.total_hurt}')
         else:
-            print(f'   food: {self.total_success}')
+            print(f'   food: {self.total_success} hurt: {self.total_hurt}')
 
     def close(self):
         pass
@@ -216,7 +214,7 @@ class ForagingEnv(gym.Env):
 
         #cv2.imwrite("imgs/" + str(self.current_step)+ "mask.png", mask)
         #cv2.imwrite("imgs/" + str(self.current_step) + "maskred.png", mask_red)
-        cv2.imwrite("imgs/" + str(self.current_step) + "img.png", image)
+        #cv2.imwrite("imgs/" + str(self.current_step) + "img.png", image)
 
         size_y = len(image)
         size_x = len(image[0])
@@ -241,6 +239,5 @@ class ForagingEnv(gym.Env):
             avg_y_red = 0
             avg_x_red = 0
 
-        #print(avg_y, avg_x, avg_y_red, avg_x_red)
         return avg_y, avg_x, avg_y_red, avg_x_red
 

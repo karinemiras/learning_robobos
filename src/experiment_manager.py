@@ -139,12 +139,14 @@ class ExperimentManager:
                                         self.current_episode,
                                         self.env.current_step,
                                         self.env.total_success,
+                                        self.env.total_hurt,
                                         rewards])
         else:
             self.results_episodes_validation.append([
                                         self.current_episode,
                                         self.env.current_step,
                                         self.env.total_success,
+                                        self.env.total_hurt,
                                         rewards])
 
     def run(self):

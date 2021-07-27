@@ -36,6 +36,7 @@ class ForagingEnv(gym.Env):
         # init
         self.done = False
         self.total_success = 0
+        self.total_hurt = 0
         self.current_step = 0
         self.exp_manager = None
 
@@ -107,7 +108,7 @@ class ForagingEnv(gym.Env):
         color_y, color_x = self.detect_color()
 
         if self.config.sim_hard == 'sim':
-            collected_food, aux  = self.robot.collected_food()
+            collected_food, aux = self.robot.collected_food()
         else:
             collected_food = 0
 

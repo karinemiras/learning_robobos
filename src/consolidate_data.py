@@ -30,7 +30,7 @@ class ConsolidateData:
 
             print(self.experiment, run)
 
-            measures = ['steps', 'duration', 'total_success', 'rewards']
+            measures = ['steps', 'duration','total_success', 'rewards'] # remove duration!
             data = self.recover_latest_checkpoint(experiment, run)
 
             df = pd.DataFrame(data, columns=['episode']+measures)
@@ -42,27 +42,16 @@ class ConsolidateData:
             # get relevant values from each episode
             df_relevant = df.groupby(['episode', 'val_index']).agg(
                             steps=('steps', max),
-                            duration=('duration', max),
                             total_success=('total_success', max),
                             rewards=('rewards', sum)
                         ).reset_index()
 
-            # calculates earliest step of max success
-            df = df.rename(columns={'steps': 'step_success'}, inplace=False)
-            step_success = df.iloc[df.groupby(['episode', 'val_index'])['total_success'].
-                                        agg(pd.Series.idxmax)].filter(['episode',  'val_index', 'step_success'])
-
-            df_relevant = df_relevant.merge(step_success, on=['episode', 'val_index'])
-
             #  average validation episodes
             df_avg_intra = df_relevant.groupby('episode').agg(
                             steps=('steps', 'mean'),
-                            duration=('duration', 'mean'),
                             total_success=('total_success', 'mean'),
-                            rewards=('rewards', 'mean'),
-                            step_success=('step_success', 'mean')
+                            rewards=('rewards', 'mean')
                         ).reset_index()
-            df_avg_intra['duration'] = round(df_avg_intra['duration'] / 1000 / 60, 1)
 
             df_avg_intra['episode'] = range(1, len(df_avg_intra)+1)
             df_avg_intra['experiment'] = experiment
@@ -82,13 +71,6 @@ class ConsolidateData:
                                     steps_min=('steps', 'min'),
                                     steps_q25=('steps', self.q25),
                                     steps_q75=('steps', self.q75),
-                                    duration_median=('duration', 'median'),
-                                    duration_mean=('duration', 'mean'),
-                                    duration_std=('duration', 'std'),
-                                    duration_max=('duration', 'max'),
-                                    duration_min=('duration', 'min'),
-                                    duration_q25=('duration', self.q25),
-                                    duration_q75=('duration', self.q75),
                                     total_success_median=('total_success', 'median'),
                                     total_success_mean=('total_success', 'mean'),
                                     total_success_std=('total_success', 'std'),
@@ -102,20 +84,11 @@ class ConsolidateData:
                                     rewards_max=('rewards', 'max'),
                                     rewards_min=('rewards', 'min'),
                                     rewards_q25=('rewards', self.q25),
-                                    rewards_q75=('rewards', self.q75),
-                                    step_success_median=('step_success', 'median'),
-                                    step_success_mean=('step_success', 'mean'),
-                                    step_success_std=('step_success', 'std'),
-                                    step_success_max=('step_success', 'max'),
-                                    step_success_min=('step_success', 'min'),
-                                    step_success_q25=('step_success', self.q25),
-                                    step_success_q75=('step_success', self.q75)
+                                    rewards_q75=('rewards', self.q75)
                                     ).reset_index()
-
 
         full_data_agreg.to_csv(f'{self.dir}{self.experiment}_full_data_agreg.csv')
         full_data.to_csv(f'{self.dir}{self.experiment}_full_data.csv')
-
 
     def recover_latest_checkpoint(self, experiment_name, run):
         dir = f'{self.dir}{experiment_name}_{run}'
@@ -141,14 +114,13 @@ class ConsolidateData:
         return x.quantile(0.75)
 
 
-experiments =['for_seen_TD',
-              'for_mseen_TD']
+experiments = ['for_seen_TD', 'for_mseen_TD']
 
 
 for experiment in experiments:
     cd = ConsolidateData(
             experiment=experiment,
-            runs=range(1, 1+1)#20
+            runs=range(1, 20+1)
     )
 
     cd.run()

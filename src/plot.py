@@ -16,16 +16,11 @@ class PlotData:
 
     def __init__(self, anal, experiments):
         self.anal = anal
-        self.experiments =  experiments
-
-        print(experiments)
+        self.experiments = experiments
 
         self.dir = 'experiments/#base1/'
-        #self.measures = ['steps', 'duration', 'total_success', 'rewards', 'step_success']
-        self.measures = ['steps', 'total_success', 'rewards', 'step_success']
-        self.measures = [ 'total_success' ]
-        #self.measures_limits = [[70, 150], [5, 13], [-1.5, 9.5], [-10, 80], [-10, 130]]
-        self.measures_limits = [ [-1.5, 9.5]]
+        self.measures = ['steps', 'total_success', 'rewards']
+        self.measures_limits = [[20, 150],  [0, 9.5], [-10, 100]]
         self.metrics = ['max', 'mean', 'min', 'median']
         self.clrs = ['#CC0000', '#006600']
 
@@ -35,8 +30,6 @@ class PlotData:
 
         full_data_agreg = pd.read_csv(f'{self.dir}{self.anal}_full_data_agreg.csv')
         full_data_agreg =  full_data_agreg[full_data_agreg['experiment'].isin(self.experiments)]
-
-        print(full_data_agreg)
 
         for idx_measure, measure in enumerate(self.measures):
 
@@ -59,7 +52,7 @@ class PlotData:
                         ax.fill_between(data['episode'],
                                         data[f'{measure}_{metric}'] - data[f'{measure}_std'],
                                         data[f'{measure}_{metric}'] + data[f'{measure}_std'],
-                                        alpha=0.3 , facecolor=self.clrs[idx_experiment])
+                                        alpha=0.3, facecolor=self.clrs[idx_experiment])
 
                     ax.set_ylim((self.measures_limits[idx_measure][0], self.measures_limits[idx_measure][1]))
                     plt.xlabel('Stage')
@@ -67,14 +60,13 @@ class PlotData:
                     plt.title(self.anal)
                     ax.legend()
 
-                    if metric == 'total_success':
-                        plt.plot([1, 30], [7, 7])
+                    if measure.find('total_success') != -1:
+                        plt.plot([1, 30], [7, 7], 'k--', linewidth=1)
 
                 plt.grid()
                 plt.savefig(f'{self.dir}{self.anal}_{measure}_{metric}.png')
 
                 # add marker max, bigger letters, better titles and axis, better colors, legends
-
 
     def boxes(self):
 
@@ -86,21 +78,21 @@ class PlotData:
         full_data_agreg = full_data_agreg[full_data_agreg['experiment'].isin(self.experiments)]
 
         full_data_agreg = full_data_agreg[full_data_agreg['episode'] == full_data_agreg["episode"].max()]
-
         print(full_data_agreg)
 
         for idx_measure, measure in enumerate(self.measures):
             sb.set()
             sb.set_style("whitegrid")
 
-            plot=sb.boxplot(x='experiment', y=measure, data=full_data_agreg, palette=self.clrs) # hue='Style',
+            plot = sb.boxplot(x='experiment', y=measure, data=full_data_agreg, palette=self.clrs) # hue='Style',
 
-            #remove bonferroni correction?
+            # remove bonferroni correction?
             if len(tests_combinations) > 0:
                 add_stat_annotation(plot, data=full_data_agreg, x='experiment', y=measure,# order=order,
                                     box_pairs=tests_combinations,
                                     test='Wilcoxon', text_format='star', loc='inside', verbose=2)
 
+            plot.set_ylim((self.measures_limits[idx_measure][0], self.measures_limits[idx_measure][1]))
             plt.title(self.anal)
             plot.get_figure().savefig(f'{self.dir}{self.anal}_{measure}_box.png')
             plt.clf()
@@ -114,7 +106,7 @@ analysis = {
 for anal in analysis:
     cd = PlotData(anal, analysis[anal])
     cd.lines()
-    #cd.boxes()
+    cd.boxes()
 
 
 

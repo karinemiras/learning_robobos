@@ -7,6 +7,7 @@ from gym import spaces
 import numpy as np
 import os
 import time
+import pprint
 
 import robobo
 from action_selection import ActionSelection
@@ -31,12 +32,15 @@ class ForagingEnv(gym.Env):
 
         self.max_food = 7
         self.food_reward = 10
+        self.sight_reward = 0.1
+        self.avoid_reward = -0.1
 
         # init
         self.done = False
         self.total_success = 0
         self.total_hurt = 0
         self.current_step = 0
+        self.start_time = None
         self.exp_manager = None
 
         # Define action and sensors space
@@ -44,7 +48,7 @@ class ForagingEnv(gym.Env):
                                        shape=(4,), dtype=np.float32)
         # why high and low?
         self.observation_space = spaces.Box(low=0, high=1,
-                                            shape=(6,), dtype=np.float32)
+                                            shape=(9,), dtype=np.float32)
 
         self.action_selection = ActionSelection(self.config)
 
@@ -88,16 +92,10 @@ class ForagingEnv(gym.Env):
             self.robot.set_phone_tilt(92)
 
         sensors = self.get_infrared()
-        prop_green_points, color_y, color_x = self.detect_color()
-        sensors = np.append(sensors, [color_y, color_x, prop_green_points])
+        prop_green_points, prop_red_points, color_y, color_x, color_y_red, color_x_red = self.detect_color()
+        sensors = np.append(sensors, [color_y, color_x, color_y_red, color_x_red, prop_green_points, prop_red_points])
 
         return np.array(sensors).astype(np.float32)
-
-    def normal(self, var):
-        if self.config.sim_hard == 'sim':
-            return var * (self.config.max_speed - self.config.min_speed) + self.config.min_speed
-        else:
-            return var * (self.config.max_speed_hard - self.config.min_speed_hard) + self.config.min_speed_hard
 
     def step(self, actions):
 
@@ -110,10 +108,10 @@ class ForagingEnv(gym.Env):
 
         # gets states
         sensors = self.get_infrared()
-        prop_green_points, color_y, color_x = self.detect_color()
+        prop_green_points, prop_red_points, color_y, color_x, color_y_red, color_x_red = self.detect_color()
 
         if self.config.sim_hard == 'sim':
-            collected_food, aux = self.robot.collected_food()
+            collected_food, collected_hurt = self.robot.collected_food()
         else:
             collected_food = 0
 
@@ -135,16 +133,22 @@ class ForagingEnv(gym.Env):
         else:
             food_reward = 0
 
-        self.total_success = collected_food
-
-        if prop_green_points > 0:
-            sight = prop_green_points
+        if collected_hurt - self.total_hurt > 0:
+            avoid_reward = self.avoid_reward
         else:
-            sight = -0.1
+            avoid_reward = 0
 
-        sensors = np.append(sensors, [color_y, color_x, prop_green_points])
+        self.total_success = collected_food
+        self.total_hurt = collected_hurt
 
-        reward = food_reward + sight
+        if color_y and color_x:
+            sight = self.sight_reward
+        else:
+            sight = -self.sight_reward
+
+        sensors = np.append(sensors, [color_y, color_x, color_y_red, color_x_red, prop_green_points, prop_red_points])
+
+        reward = food_reward + sight + avoid_reward
 
         if self.config.human_interference:
             if reward > 0:
@@ -166,9 +170,9 @@ class ForagingEnv(gym.Env):
 
     def food_print(self):
         if self.exp_manager.mode_train_validation == 'train':
-            print(f'food in episode {self.exp_manager.current_episode}: {self.total_success}')
+            print(f'food in episode {self.exp_manager.current_episode}: {self.total_success}  hurt: {self.total_hurt}')
         else:
-            print(f'   food: {self.total_success}')
+            print(f'   food: {self.total_success} hurt: {self.total_hurt}')
 
     def close(self):
         pass
@@ -205,7 +209,11 @@ class ForagingEnv(gym.Env):
         # mask of green
         mask = cv2.inRange(hsv, (45, 70, 70), (85, 255, 255))
 
-        #cv2.imwrite("imgs/" + str(self.current_step) + "mask.png", mask)
+        # mask of red
+        mask_red = cv2.inRange(hsv, (0, 50, 50), (10, 255, 255))
+
+        #cv2.imwrite("imgs/" + str(self.current_step)+ "mask.png", mask)
+        #cv2.imwrite("imgs/" + str(self.current_step) + "maskred.png", mask_red)
         #cv2.imwrite("imgs/" + str(self.current_step) + "img.png", image)
 
         size_y = len(image)
@@ -215,17 +223,28 @@ class ForagingEnv(gym.Env):
         number_green_points = cv2.countNonZero(mask)
         prop_green_points = number_green_points / total_points
 
+        number_red_points = cv2.countNonZero(mask_red)
+        prop_red_points = number_red_points / total_points
+
         if cv2.countNonZero(mask) > 0:
             y = np.where(mask == 255)[0]
             x = np.where(mask == 255)[1]
-
             # average positions normalized by image size
             avg_y = sum(y) / len(y) / (size_y - 1)
             avg_x = sum(x) / len(x) / (size_x - 1)
-
         else:
             avg_y = 0
             avg_x = 0
 
-        return prop_green_points, avg_y, avg_x
+        if cv2.countNonZero(mask_red) > 0:
+            y_red = np.where(mask_red == 255)[0]
+            x_red = np.where(mask_red == 255)[1]
+            avg_y_red = sum(y_red) / len(y_red) / (size_y - 1)
+            avg_x_red = sum(x_red) / len(x_red) / (size_x - 1)
+
+        else:
+            avg_y_red = 0
+            avg_x_red = 0
+
+        return prop_green_points, prop_red_points, avg_y, avg_x, avg_y_red, avg_x_red
 

@@ -5,8 +5,10 @@
 
 num_terminals=20
 #experiments=("forseenTD" "formseenTD")
-experiments=("forseenSAC" "formseenSAC")
-runs=20
+#experiments=("forseenSAC" "formseenSAC")
+experiments=("avoidseenTD" "avoidmseenTD")
+runs=10
+#20
 checkpoints=6
 start_port=20000
 
