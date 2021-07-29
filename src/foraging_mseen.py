@@ -81,9 +81,8 @@ class ForagingEnv(gym.Env):
             while self.robot.is_simulation_stopped():
                 pass
 
-        # TODO: fix correct values
         if self.config.sim_hard == 'sim':
-            self.robot.set_phone_tilt(-100)
+            self.robot.set_phone_tilt(-100) # 0.7 is teh same
         else:
             self.robot.set_phone_tilt(92)
 
@@ -177,7 +176,6 @@ class ForagingEnv(gym.Env):
 
         irs = np.asarray(self.robot.read_irs()).astype(np.float32)
 
-        #np.set_printoptions(suppress=True)
         if self.config.sim_hard == 'hard':
             # sets threshold for sensors ghosts : change to lambda later
             for idx, val in np.ndenumerate(irs):
@@ -185,7 +183,6 @@ class ForagingEnv(gym.Env):
                     irs[idx] = 1
                 else:
                     irs[idx] = 0
-        #print('a',irs)
 
         irs[irs != 0] = 1
 

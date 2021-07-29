@@ -28,7 +28,7 @@ class ConsolidateData:
 
         for run in self.runs:
 
-            measures = ['steps', 'total_success', 'rewards']
+            measures = ['steps', 'total_success', 'total_hurt', 'rewards']
             data = self.recover_latest_checkpoint(experiment, run)
 
             df = pd.DataFrame(data, columns=['episode']+measures)
@@ -37,6 +37,7 @@ class ConsolidateData:
             df_relevant = df.groupby(['episode']).agg(
                             steps=('steps', max),
                             total_success=('total_success', max),
+                            total_hurt=('total_hurt', max),
                             rewards=('rewards', sum)
                         ).reset_index()
 
@@ -71,12 +72,12 @@ class ConsolidateData:
             attempts -= 1
 
 
-experiments = ['formseenSAC', 'forseenSAC']
+experiments = ["forseenTD", "formseenTD", "forseenSAC", "formseenSAC"]
 
 for experiment in experiments:
     cd = ConsolidateData(
             experiment=experiment,
-            runs=range(1, 20+1)
+            runs=range(1, 5+1) #10
     )
 
     cd.run()

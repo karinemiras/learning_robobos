@@ -13,6 +13,7 @@ from stable_baselines3 import TD3
 from stable_baselines3.td3.policies import MlpPolicy
 from stable_baselines3.common.noise import NormalActionNoise
 
+
 config = Config()
 config = config.parser.parse_args()
 
@@ -22,8 +23,10 @@ n_actions = foraging_env.action_space.shape[-1]
 action_noise = NormalActionNoise(mean=np.zeros(n_actions),
                                  sigma=0.1 * np.ones(n_actions))
 
+
 def load(name, env):
     return TD3.load(name, env)
+
 
 model = TD3(MlpPolicy,
             foraging_env,

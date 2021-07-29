@@ -15,7 +15,7 @@ class Config:
 
         self.parser.add_argument(
             '--robot-ip-hard',
-            default='10.15.3.116', type=str,
+            default='10.15.3.131', type=str,
             help="Ip of the robot in hardware."
         )
 
@@ -43,7 +43,7 @@ class Config:
 
         self.parser.add_argument(
             '--episode-train-steps',
-            default=130, type=int,#100
+            default=100, type=int,
             help="Maximum number of steps of an episode while training."
         )
 
@@ -61,13 +61,13 @@ class Config:
 
         self.parser.add_argument(
             '--validation-freq',
-            default=1000, type=int, #1000
+            default=1000, type=int,
             help="After how many steps the policy should be validated."
         )
 
         self.parser.add_argument(
             '--number-validations',
-            default=0, type=int, #10#5
+            default=10, type=int,
             help="Number of episodes to repeat the validation of the policy during training."
         )
 
@@ -85,7 +85,7 @@ class Config:
 
         self.parser.add_argument(
             '--training-timesteps',
-            default=30000, type=int,
+            default=35000, type=int,
             help="Number of total time steps in the training."
         )
 

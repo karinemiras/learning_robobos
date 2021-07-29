@@ -85,7 +85,6 @@ class ForagingEnv(gym.Env):
             while self.robot.is_simulation_stopped():
                 pass
 
-        # TODO: fix correct values
         if self.config.sim_hard == 'sim':
             self.robot.set_phone_tilt(-100)
         else:
@@ -114,6 +113,7 @@ class ForagingEnv(gym.Env):
             collected_food, collected_hurt = self.robot.collected_food()
         else:
             collected_food = 0
+            collected_hurt = 0
 
         if self.exp_manager.config.train_or_test == 'train':
             # train
@@ -189,7 +189,6 @@ class ForagingEnv(gym.Env):
                     irs[idx] = 1
                 else:
                     irs[idx] = 0
-        #print('a',irs)
 
         irs[irs != 0] = 1
 

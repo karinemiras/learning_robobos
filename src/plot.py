@@ -1,10 +1,6 @@
-import glob
-import numpy as np
-import pickle
 import pprint
 import pandas as pd
 import matplotlib.pyplot as plt
-import sys
 import seaborn as sb
 from statannot import add_stat_annotation
 from itertools import combinations
@@ -18,18 +14,20 @@ class PlotData:
         self.anal = anal
         self.experiments = experiments
 
-        self.dir = 'experiments/#base1/'
+        self.dir = 'experiments/'
         self.measures = ['steps', 'total_success', 'rewards']
-        self.measures_limits = [[20, 150],  [0, 9.5], [-10, 100]]
+        self.measures_limits = [[20, 150],  [-0.5, 9.5], [-10, 100]]
         self.metrics = ['max', 'mean', 'min', 'median']
-        self.clrs = ['#CC0000', '#006600']
+        self.clrs = ['#FF3333', '#006600']
 
         plt.style.use('classic')
 
     def lines(self):
 
         full_data_agreg = pd.read_csv(f'{self.dir}{self.anal}_full_data_agreg.csv')
-        full_data_agreg =  full_data_agreg[full_data_agreg['experiment'].isin(self.experiments)]
+        full_data_agreg = full_data_agreg[full_data_agreg['experiment'].isin(self.experiments)]
+
+        pprint.pprint(full_data_agreg)
 
         for idx_measure, measure in enumerate(self.measures):
 
@@ -55,16 +53,20 @@ class PlotData:
                                         alpha=0.3, facecolor=self.clrs[idx_experiment])
 
                     ax.set_ylim((self.measures_limits[idx_measure][0], self.measures_limits[idx_measure][1]))
-                    plt.xlabel('Stage')
+                    plt.xlabel('Test')
                     plt.ylabel(f'{measure}_{metric}')
                     plt.title(self.anal)
+                    #
                     ax.legend()
 
                     if measure.find('total_success') != -1:
-                        plt.plot([1, 30], [7, 7], 'k--', linewidth=1)
+                        plt.plot([1, 35], [7, 7], 'k--', linewidth=1.5)
+
+                font = {'font.size': 20}
+                plt.rcParams.update(font)
 
                 plt.grid()
-                plt.savefig(f'{self.dir}{self.anal}_{measure}_{metric}.png')
+                plt.savefig(f'{self.dir}{self.anal}_{measure}_{metric}.png', bbox_inches='tight')
 
                 # add marker max, bigger letters, better titles and axis, better colors, legends
 
@@ -77,29 +79,34 @@ class PlotData:
         full_data_agreg = pd.read_csv(f'{self.dir}{self.anal}_full_data.csv')
         full_data_agreg = full_data_agreg[full_data_agreg['experiment'].isin(self.experiments)]
 
+        #TODO: get max quality per run?
         full_data_agreg = full_data_agreg[full_data_agreg['episode'] == full_data_agreg["episode"].max()]
         print(full_data_agreg)
 
         for idx_measure, measure in enumerate(self.measures):
-            sb.set()
+            sb.set(rc={"axes.titlesize": 23, "axes.labelsize": 23, 'ytick.labelsize': 21, 'xtick.labelsize': 21})
             sb.set_style("whitegrid")
 
-            plot = sb.boxplot(x='experiment', y=measure, data=full_data_agreg, palette=self.clrs) # hue='Style',
+            plot = sb.boxplot(x='experiment', y=measure, data=full_data_agreg,
+                              palette=self.clrs, width=0.4, showmeans=True, linewidth=2, fliersize=6,
+                              meanprops={"marker": "o", "markerfacecolor": "yellow", "markersize": "12"})
 
             # remove bonferroni correction?
             if len(tests_combinations) > 0:
-                add_stat_annotation(plot, data=full_data_agreg, x='experiment', y=measure,# order=order,
+                add_stat_annotation(plot, data=full_data_agreg, x='experiment', y=measure,
                                     box_pairs=tests_combinations,
-                                    test='Wilcoxon', text_format='star', loc='inside', verbose=2)
+                                    test='Wilcoxon', text_format='star', loc='inside', verbose=4)
 
             plot.set_ylim((self.measures_limits[idx_measure][0], self.measures_limits[idx_measure][1]))
             plt.title(self.anal)
-            plot.get_figure().savefig(f'{self.dir}{self.anal}_{measure}_box.png')
+            plot.get_figure().savefig(f'{self.dir}{self.anal}_{measure}_box.png', bbox_inches='tight')
             plt.clf()
 
 analysis = {
-     'for_seen_TD':  ["for_seen_TD"],
-     'for_mseen_TD': ["for_mseen_TD"],
+     'forseenTD':  ["forseenTD"],
+     'formseenTD': ["formseenTD"],
+     'forseenSAC': ["forseenSAC"],
+     'formseenSAC': ["formseenSAC"]
 }
 
 

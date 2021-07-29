@@ -3,13 +3,16 @@
 #set -x
 
 
+experiments=("forseenTD" "formseenTD" "forseenSAC" "formseenSAC")
+validation_steps=130
+
+#experiments=("avoidseenTD" "avoidmseenTD" "avoidseenSAC" "avoidmseenSAC")
+#validation_steps=150
+
+runs=20
+checkpoints=35
+
 num_terminals=20
-#experiments=("forseenTD" "formseenTD")
-#experiments=("forseenSAC" "formseenSAC")
-experiments=("avoidseenTD" "avoidmseenTD")
-runs=10
-#20
-checkpoints=6
 start_port=20000
 
 
@@ -102,7 +105,7 @@ while true
     p=0
     for to_d in "${to_do[@]}"; do
 
-        screen -d -m -S exp_${free_screens[$p]}_${to_d} -L -Logfile experiments/"${to_d}.log" nice -n19 python3  src/$(cut -d'_' -f1 <<<"${to_d}").py --experiment-name ${to_d} --robot-port ${free_screens[$p]};
+        screen -d -m -S exp_${free_screens[$p]}_${to_d} -L -Logfile experiments/"${to_d}.log" nice -n19 python3  src/$(cut -d'_' -f1 <<<"${to_d}").py --experiment-name ${to_d} --episode-validation-steps $validation_steps --robot-port ${free_screens[$p]};
 
         printf "\n >> (re)starting exp_${free_screens[$p]}_${to_d} \n\n"
         p=$((${p}+1))

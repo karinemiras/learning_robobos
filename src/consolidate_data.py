@@ -18,7 +18,7 @@ class ConsolidateData:
 
         self.experiment = experiment
         self.runs = runs
-        self.dir = 'experiments/#base1/'
+        self.dir = 'experiments/'
 
     def run(self):
 
@@ -30,7 +30,7 @@ class ConsolidateData:
 
             print(self.experiment, run)
 
-            measures = ['steps', 'duration','total_success', 'rewards'] # remove duration!
+            measures = ['steps', 'total_success', 'total_hurt', 'rewards']
             data = self.recover_latest_checkpoint(experiment, run)
 
             df = pd.DataFrame(data, columns=['episode']+measures)
@@ -43,6 +43,7 @@ class ConsolidateData:
             df_relevant = df.groupby(['episode', 'val_index']).agg(
                             steps=('steps', max),
                             total_success=('total_success', max),
+                            total_hurt=('total_hurt', max),
                             rewards=('rewards', sum)
                         ).reset_index()
 
@@ -50,6 +51,7 @@ class ConsolidateData:
             df_avg_intra = df_relevant.groupby('episode').agg(
                             steps=('steps', 'mean'),
                             total_success=('total_success', 'mean'),
+                            total_hurt=('total_hurt', 'mean'),
                             rewards=('rewards', 'mean')
                         ).reset_index()
 
@@ -78,6 +80,13 @@ class ConsolidateData:
                                     total_success_min=('total_success', 'min'),
                                     total_success_q25=('total_success', self.q25),
                                     total_success_q75=('total_success', self.q75),
+                                    total_hurt_median=('total_success', 'median'),
+                                    total_hurt_mean=('total_hurt', 'mean'),
+                                    total_hurt_std=('total_hurt', 'std'),
+                                    total_hurt_max=('total_hurt', 'max'),
+                                    total_hurt_min=('total_hurt', 'min'),
+                                    total_hurt_q25=('total_hurt', self.q25),
+                                    total_hurt_q75=('total_hurt', self.q75),
                                     rewards_median=('rewards', 'median'),
                                     rewards_mean=('rewards', 'mean'),
                                     rewards_std=('rewards', 'std'),
@@ -114,13 +123,13 @@ class ConsolidateData:
         return x.quantile(0.75)
 
 
-experiments = ['for_seen_TD', 'for_mseen_TD']
+experiments = ["forseenTD", "formseenTD", "forseenSAC", "formseenSAC"]
 
 
 for experiment in experiments:
     cd = ConsolidateData(
             experiment=experiment,
-            runs=range(1, 20+1)
+            runs=range(1, 5+1) #10
     )
 
     cd.run()

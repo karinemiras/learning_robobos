@@ -2,6 +2,7 @@ import numpy as np
 import pygame
 import time
 
+
 class ActionSelection:
 
     def __init__(self, config):
@@ -50,8 +51,6 @@ class ActionSelection:
             left = int(left)
             right = int(right)
             millis = int(millis)
-
-        #print(left, right, millis, apply_reward)
 
         return left, right, millis, apply_reward
 
@@ -126,7 +125,7 @@ class ActionSelection:
             var = 1
         return var
 
-    def check_apply_reward(self,robot_left, robot_right, human_left, human_right):
+    def check_apply_reward(self, robot_left, robot_right, human_left, human_right):
 
         apply_reward = -1
 
@@ -138,7 +137,6 @@ class ActionSelection:
         if human_left == robot_left and human_right == robot_right:
             apply_reward = 1
 
-        print('a',apply_reward)
         return apply_reward
 
     def robot_mode(self, actions):
