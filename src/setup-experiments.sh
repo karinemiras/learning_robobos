@@ -3,11 +3,11 @@
 #set -x
 
 
-experiments=("forseenTD" "formseenTD" "forseenSAC" "formseenSAC")
-validation_steps=130
+#experiments=("forseenTD" "formseenTD" "forseenSAC" "formseenSAC")
+#validation_steps=130
 
-#experiments=("avoidseenTD" "avoidmseenTD" "avoidseenSAC" "avoidmseenSAC")
-#validation_steps=150
+experiments=("avoidseenTD" "avoidmseenTD" "avoidseenSAC" "avoidmseenSAC")
+validation_steps=150
 
 runs=20
 checkpoints=35

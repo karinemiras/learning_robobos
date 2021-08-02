@@ -79,7 +79,7 @@ class Config:
 
         self.parser.add_argument(
             '--number-tests',
-            default=3, type=int,
+            default=10, type=int,
             help="Number of episodes to repeat the test of the policy after training."
         )
 

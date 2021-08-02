@@ -4,7 +4,7 @@
 
 
 experiments=("forseenTD" "formseenTD" "forseenSAC" "formseenSAC")
-runs=10
+runs=20
 checkpoints=6
 
 

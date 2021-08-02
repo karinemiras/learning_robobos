@@ -4,19 +4,21 @@ import matplotlib.pyplot as plt
 import seaborn as sb
 from statannot import add_stat_annotation
 from itertools import combinations
+import sys
 
 pd.set_option("display.max_rows", 99999)
 
 
 class PlotData:
 
-    def __init__(self, anal, experiments):
+    def __init__(self, anal, experiments, runs):
         self.anal = anal
         self.experiments = experiments
+        self.runs = runs
 
         self.dir = 'experiments/'
-        self.measures = ['steps', 'total_success', 'rewards']
-        self.measures_limits = [[20, 150],  [-0.5, 9.5], [-10, 100]]
+        self.measures = ['steps', 'total_success', 'total_hurt', 'rewards']
+        self.measures_limits = [[20, 150],  [-0.5, 9.5], [-10, 1400], [-10, 100]]
         self.metrics = ['max', 'mean', 'min', 'median']
         self.clrs = ['#FF3333', '#006600']
 
@@ -68,8 +70,6 @@ class PlotData:
                 plt.grid()
                 plt.savefig(f'{self.dir}{self.anal}_{measure}_{metric}.png', bbox_inches='tight')
 
-                # add marker max, bigger letters, better titles and axis, better colors, legends
-
     def boxes(self):
 
         plt.clf()
@@ -78,29 +78,43 @@ class PlotData:
 
         full_data_agreg = pd.read_csv(f'{self.dir}{self.anal}_full_data.csv')
         full_data_agreg = full_data_agreg[full_data_agreg['experiment'].isin(self.experiments)]
+        data_filtered = pd.DataFrame()
 
-        #TODO: get max quality per run?
-        full_data_agreg = full_data_agreg[full_data_agreg['episode'] == full_data_agreg["episode"].max()]
-        print(full_data_agreg)
+        for experiment in self.experiments:
+            for run in self.runs:
+
+                exp_run = full_data_agreg[(full_data_agreg['experiment'] == experiment) & (full_data_agreg['run'] == run)]
+                exp_run = exp_run[(exp_run['total_success'] == exp_run["total_success"].max())]
+                exp_run = exp_run[exp_run['total_hurt'] == exp_run["total_hurt"].min()]
+                exp_run = exp_run[exp_run['steps'] == exp_run["steps"].min()]
+                exp_run = exp_run[exp_run['episode'] == exp_run["episode"].max()]
+
+                data_filtered = pd.concat([data_filtered, exp_run], axis=0)
+
+        pprint.pprint(data_filtered)
 
         for idx_measure, measure in enumerate(self.measures):
             sb.set(rc={"axes.titlesize": 23, "axes.labelsize": 23, 'ytick.labelsize': 21, 'xtick.labelsize': 21})
             sb.set_style("whitegrid")
 
-            plot = sb.boxplot(x='experiment', y=measure, data=full_data_agreg,
+            plot = sb.boxplot(x='experiment', y=measure, data=data_filtered,
                               palette=self.clrs, width=0.4, showmeans=True, linewidth=2, fliersize=6,
                               meanprops={"marker": "o", "markerfacecolor": "yellow", "markersize": "12"})
 
             # remove bonferroni correction?
             if len(tests_combinations) > 0:
-                add_stat_annotation(plot, data=full_data_agreg, x='experiment', y=measure,
+                add_stat_annotation(plot, data=data_filtered, x='experiment', y=measure,
                                     box_pairs=tests_combinations,
                                     test='Wilcoxon', text_format='star', loc='inside', verbose=4)
+
+            if measure.find('total_success') != -1:
+                plot.axhline(7, ls='--', color="black")
 
             plot.set_ylim((self.measures_limits[idx_measure][0], self.measures_limits[idx_measure][1]))
             plt.title(self.anal)
             plot.get_figure().savefig(f'{self.dir}{self.anal}_{measure}_box.png', bbox_inches='tight')
             plt.clf()
+
 
 analysis = {
      'forseenTD':  ["forseenTD"],
@@ -109,9 +123,9 @@ analysis = {
      'formseenSAC': ["formseenSAC"]
 }
 
-
+runs = range(1, 20+1)
 for anal in analysis:
-    cd = PlotData(anal, analysis[anal])
+    cd = PlotData(anal, analysis[anal], runs=runs )
     cd.lines()
     cd.boxes()
 

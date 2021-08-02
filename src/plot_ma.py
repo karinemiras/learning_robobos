@@ -22,7 +22,7 @@ class PlotData:
         plt.style.use('classic')
 
     def read(self):
-        self.full_data_agreg = pd.read_csv(f'{self.dir}{self.anal}_full_data.csv')
+        self.full_data_agreg = pd.read_csv(f'{self.dir}{self.anal}_full_data_ma.csv')
         self.full_data_agreg = self.full_data_agreg[self.full_data_agreg['experiment'].isin(self.experiments)]
 
     def lines(self):
@@ -60,7 +60,6 @@ class PlotData:
         plt.rc('xtick', labelsize=17)
         plt.rc('ytick', labelsize=17)
         fig, axs = plt.subplots(rows, columns, sharex=True, sharey=True, constrained_layout=True)
-        #plt.subplots_adjust(left=None, bottom=1, right=None, top=None, wspace=None, hspace=None)
 
         for row in range(0, rows):
             for column in range(0, columns):
@@ -82,7 +81,8 @@ analysis = {
      'forseenSAC':  ["forseenSAC"],
      'formseenSAC':  ["formseenSAC"]
 }
-runs = range(1, 5+1) #10
+
+runs = range(1, 20+1)
 
 for anal in analysis:
     cd = PlotData(anal, analysis[anal], runs)

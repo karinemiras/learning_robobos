@@ -221,18 +221,20 @@ class ExperimentManager:
 
                 attempts -= 1
 
-    def test_policy(self, experiment, run):
+    # def test_policy(self, experiment, run, checkpoint):
+    #
+    #     self.load_stage(checkpoint)
+    #
+    #     print('> Testing ', experiment, run)
+    #     for i in range(1, self.config.number_tests+1):
+    #         print('  Test', i)
+    #         obs = self.env.reset()
+    #         done = False
+    #         while not done:
+    #             action, _states = self.model.predict(obs)
+    #             obs, rewards, done, info = self.env.step(action)
 
-        self.prepare_stage()
-
-        print('> Testing ', experiment, run)
-        for i in range(1, self.config.number_tests+1):
-            print('  Test', i)
-            obs = self.env.reset()
-            done = False
-            while not done:
-                action, _states = self.model.predict(obs)
-                obs, rewards, done, info = self.env.step(action)
-
-
-
+    # TODO: use this function in preparestage later
+    # def load_stage(self, checkpoint):
+    #     f = open(f'{dir}/status_checkpoint_{checkpoint}.pkl', 'rb')
+    #     self.results_episodes, self.results_episodes_validation, self.current_checkpoint, self.current_episode = pickle.load(f)

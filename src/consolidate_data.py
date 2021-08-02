@@ -129,7 +129,7 @@ experiments = ["forseenTD", "formseenTD", "forseenSAC", "formseenSAC"]
 for experiment in experiments:
     cd = ConsolidateData(
             experiment=experiment,
-            runs=range(1, 5+1) #10
+            runs=range(1, 20+1)
     )
 
     cd.run()

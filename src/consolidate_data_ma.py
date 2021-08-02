@@ -53,7 +53,7 @@ class ConsolidateData:
             pprint.pprint(df_relevant)
             full_data = pd.concat([full_data, df_relevant])
 
-        full_data.to_csv(f'{self.dir}{self.experiment}_full_data.csv')
+        full_data.to_csv(f'{self.dir}{self.experiment}_full_data_ma.csv')
 
     def recover_latest_checkpoint(self, experiment_name, run):
         dir = f'{self.dir}{experiment_name}_{run}'
@@ -77,7 +77,7 @@ experiments = ["forseenTD", "formseenTD", "forseenSAC", "formseenSAC"]
 for experiment in experiments:
     cd = ConsolidateData(
             experiment=experiment,
-            runs=range(1, 5+1) #10
+            runs=range(1, 20+1) 
     )
 
     cd.run()
