@@ -55,7 +55,7 @@ class Config:
 
         self.parser.add_argument(
             '--episode-test-steps',
-            default=130, type=int,
+            default=150, type=int,
             help="Maximum duration of an episode while making final tests."
         )
 

@@ -63,8 +63,10 @@ class ConsolidateData:
 
             full_data = pd.concat([full_data, df_avg_intra])
 
+        full_data = full_data.rename(columns={'episode': 'checkpoint'})
+
         # average runs
-        full_data_agreg = full_data.groupby(['experiment', 'episode'])\
+        full_data_agreg = full_data.groupby(['experiment', 'checkpoint'])\
                                 .agg(
                                     steps_median=('steps', 'median'),
                                     steps_mean=('steps', 'mean'),
@@ -96,8 +98,8 @@ class ConsolidateData:
                                     rewards_q75=('rewards', self.q75)
                                     ).reset_index()
 
-        full_data_agreg.to_csv(f'{self.dir}{self.experiment}_full_data_agreg.csv')
-        full_data.to_csv(f'{self.dir}{self.experiment}_full_data.csv')
+        full_data_agreg.to_csv(f'{self.dir}anal/{self.experiment}_full_data_agreg.csv')
+        full_data.to_csv(f'{self.dir}anal/{self.experiment}_full_data.csv')
 
     def recover_latest_checkpoint(self, experiment_name, run):
         dir = f'{self.dir}{experiment_name}_{run}'
@@ -123,7 +125,9 @@ class ConsolidateData:
         return x.quantile(0.75)
 
 
-experiments = ["forseenTD", "formseenTD", "forseenSAC", "formseenSAC"]
+experiments = ["forseenTD", "formseenTD", "forseenSAC", "formseenSAC",
+               "avoidseenTD", "avoidmseenTD" ,"avoidseenSAC", "avoidmseenSAC"]
+
 
 
 for experiment in experiments:

@@ -15,7 +15,7 @@ class PlotData:
         self.runs = runs
         self.full_data_agreg = None
 
-        self.dir = 'experiments/'
+        self.dir = 'experiments/anal/'
         self.measures = ['steps_ma', 'total_success_ma', 'total_hurt_ma', 'rewards_ma']
         self.measures_limits = [[20, 155], [-0.5, 8], [-10, 1400], [-5, 80]]
         self.clrs = ['#CC0000', '#006600']
@@ -77,10 +77,15 @@ class PlotData:
 
 analysis = {
      'forseenTD':  ["forseenTD"],
-     'formseenTD':  ["formseenTD"],
-     'forseenSAC':  ["forseenSAC"],
-     'formseenSAC':  ["formseenSAC"]
+     'formseenTD': ["formseenTD"],
+     'forseenSAC': ["forseenSAC"],
+     'formseenSAC': ["formseenSAC"],
+     'avoidseenTD': ["avoidseenTD"],
+     'avoidmseenTD': ["avoidmseenTD"],
+     'avoidseenSAC': ["avoidseenSAC"],
+     'avoidmseenSAC': ["avoidmseenSAC"]
 }
+
 
 runs = range(1, 20+1)
 

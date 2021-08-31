@@ -152,7 +152,7 @@ class ForagingEnv(gym.Env):
         # if episode is over
         if self.current_step == episode_length-1 or collected_food == self.max_food:
             self.done = True
-            self.food_print()
+            self.exp_manager.food_print()
 
         self.current_step += 1
 
@@ -162,12 +162,6 @@ class ForagingEnv(gym.Env):
 
     def render(self, mode='console'):
         pass
-
-    def food_print(self):
-        if self.exp_manager.mode_train_validation == 'train':
-            print(f'food in episode {self.exp_manager.current_episode}: {self.total_success}')
-        else:
-            print(f'   food: {self.total_success}')
 
     def close(self):
         pass

@@ -113,12 +113,14 @@ class ExperimentManager:
                  config,
                  model,
                  environment,
-                 load):
+                 load,
+                 log_food_print=False):
 
         self.config = config
         self.model = model
         self.env = environment
         self.load = load
+        self.log_food_print = log_food_print
         self.env.exp_manager = self
         self.log = Log(self.config.experiment_name)
 
@@ -148,6 +150,18 @@ class ExperimentManager:
                                         self.env.total_success,
                                         self.env.total_hurt,
                                         rewards])
+
+
+    def food_print(self):
+        if self.mode_train_validation == 'train':
+            print(f'food in episode  {self.current_episode}: {self.env.total_success}  hurt: {self.env.total_hurt}')
+        else:
+            print(f'   food: {self.env.total_success} hurt: {self.env.total_hurt}')
+
+        if self.log_food_print:
+            file = open(f'experiments/final_tests.txt', 'a')
+            file.write(f'{self.config.experiment_name}\t{self.config.sim_hard}\t{self.env.total_success}\t{self.env.total_hurt}\t {self.env.current_step}\n')
+            file.close()
 
     def run(self):
 
@@ -221,20 +235,28 @@ class ExperimentManager:
 
                 attempts -= 1
 
-    # def test_policy(self, experiment, run, checkpoint):
-    #
-    #     self.load_stage(checkpoint)
-    #
-    #     print('> Testing ', experiment, run)
-    #     for i in range(1, self.config.number_tests+1):
-    #         print('  Test', i)
-    #         obs = self.env.reset()
-    #         done = False
-    #         while not done:
-    #             action, _states = self.model.predict(obs)
-    #             obs, rewards, done, info = self.env.step(action)
+    def test_policy(self, experiment, run, checkpoint):
 
-    # TODO: use this function in preparestage later
-    # def load_stage(self, checkpoint):
-    #     f = open(f'{dir}/status_checkpoint_{checkpoint}.pkl', 'rb')
-    #     self.results_episodes, self.results_episodes_validation, self.current_checkpoint, self.current_episode = pickle.load(f)
+        self.load_stage(checkpoint)
+
+        print('> Testing ', experiment, run)
+        for i in range(1, self.config.number_tests+1):
+            print('  Test', i)
+            obs = self.env.reset()
+            done = False
+            while not done:
+                action, _states = self.model.predict(obs)
+                obs, rewards, done, info = self.env.step(action)
+
+
+    #TODO: reuse this function in preparestage later
+    def load_stage(self, checkpoint):
+        dir = f'experiments/{self.config.experiment_name}'
+        f = open(f'{dir}/status_checkpoint_{checkpoint}.pkl', 'rb')
+
+        self.results_episodes, self.results_episodes_validation, self.current_checkpoint, self.current_episode = pickle.load(f)
+        # only recovers pickle if model also available
+        env2 = DummyVecEnv([lambda: self.env])
+        self.model = self.load(f'{dir}/model_checkpoint_{checkpoint}', env=env2)
+
+
