@@ -43,7 +43,7 @@ class Config:
 
         self.parser.add_argument(
             '--episode-train-steps',
-            default=100, type=int,
+            default=130, type=int,
             help="Maximum number of steps of an episode while training."
         )
 
@@ -116,25 +116,13 @@ class Config:
         )
 
         self.parser.add_argument(
-            '--min-speed',
-            default=-3, type=int,
-            help="Minimum accelaration of the left wheels in simulation (backwards)."
-        )
-
-        self.parser.add_argument(
-            '--max-speed',
+            '--range-speed',
             default=3, type=int,
-            help="Maximum accelaration of the wheels in simulation (forward)."
+            help="Maximum/min accelaration of the wheels in simulation (forward)."
         )
 
         self.parser.add_argument(
-            '--min-speed-hard',
-            default=-100, type=int,
-            help="Minimum accelaration of the left wheels in hardware (backwards)."
-        )
-
-        self.parser.add_argument(
-            '--max-speed-hard',
+            '--range-speed-hard',
             default=100, type=int,
-            help="Maximum accelaration of the wheels in hardware (forward)."
+            help="Maximum/min accelaration of the wheels in hardware (forward)."
         )

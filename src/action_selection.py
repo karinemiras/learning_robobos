@@ -1,6 +1,7 @@
 import numpy as np
 import pygame
 import time
+import math
 
 
 class ActionSelection:
@@ -15,129 +16,110 @@ class ActionSelection:
             self.joystick = pygame.joystick.Joystick(0)
             self.joystick.init()
 
-    def normalize_move(self, var):
+    def get_range_speed(self):
         if self.config.sim_hard == 'sim':
-            return var * (self.config.max_speed - self.config.min_speed) + self.config.min_speed
+            range = self.config.range_speed
         else:
-            return var * (self.config.max_speed_hard - self.config.min_speed_hard) + self.config.min_speed_hard
+            range = self.config.range_speed_hard
+
+        return range
+
+    def normalize_move(self, var):
+        range = self.get_range_speed()
+        max = range
+        min = -range
+        return var * (max - min) + min
+
+    def normalize_move_negative(self, var):
+        range = self.get_range_speed()
+        max = range
+        min = -range
+
+        old_min = -1
+        old_range = 1 - old_min
+        new_range = max - min
+        var = (var - old_min) / old_range * new_range + min
+        return var
 
     def normalize_millis(self, var):
         millis = var * (self.config.max_millis - self.config.min_millis) + self.config.min_millis
-
         return millis
-
-    def max_action(self, direction):
-        if self.config.sim_hard == 'sim':
-            if direction == 'forward':
-                return self.config.max_speed
-            else:
-                return self.config.min_speed
-        else:
-            if direction == 'forward':
-                return self.config.max_speed_hard
-            else:
-                return self.config.min_speed_hard
 
     def select(self, actions):
 
         left, right, millis = self.robot_mode(actions)
-        apply_reward = 1
+        prop_diff = 0
 
         # if present, human actions overrule robot actions
         if self.is_human_active():
-            left, right, millis, apply_reward = self.human_mode(left, right)
+            left, right, millis, prop_diff = self.human_mode(left, right)
 
         if self.config.sim_hard == 'hard':
             left = int(left)
             right = int(right)
             millis = int(millis)
 
-        return left, right, millis, apply_reward
+        return left, right, millis, prop_diff
 
     def is_human_active(self):
         if not self.config.human_interference:
             return False
-        
+
         pygame.event.get()
-        if int(self.joystick.get_button(3)) == 1 or \
-                int(self.joystick.get_button(0)) == 1 or \
-                int(self.joystick.get_button(2)) == 1 or \
-                int(self.joystick.get_button(1)) == 1:
+
+        # if passes garbage threshold
+        if abs(self.joystick.get_axis(1)) > 0.2 or abs(self.joystick.get_axis(3)) > 0.2:
             return True
         else:
             return False
 
     def human_mode(self, robot_left, robot_right):
 
-        # y = move forward
-        if int(self.joystick.get_button(3)) == 1:
-            left = self.max_action('forward')
-            right = left
+        # left-directional down: -1/1 = front/back
+        # the multiplication inverts it, otherwise it is confusing for human
+        left_directional = self.joystick.get_axis(1) * -1
 
-        # a = move backward
-        elif int(self.joystick.get_button(0)) == 1:
-            left = self.max_action('backward')
-            right = left
+        # right-directional: -1/1 = left/right
+        right_directional = self.joystick.get_axis(3)
 
-        # x = move right wheel
-        elif int(self.joystick.get_button(2)) == 1:
-            left = 0
-
-            # directional down: backwards wheel
-            if round(self.joystick.get_axis(1)) == 1:
-                right = self.max_action('backward')
-            # forwards wheel
-            else:
-                right = self.max_action('forward')
-
-        # b = move left wheel
-        elif int(self.joystick.get_button(1)) == 1:
-            right = 0
-
-            # directional down: backwards wheel
-            if round(self.joystick.get_axis(1)) == 1:
-                left = self.max_action('backward')
-            # forwards wheel
-            else:
-                left = self.max_action('forward')
-
-        # define duration of move
-        if round(self.joystick.get_axis(1)) == -1:
-            # makes it positive, once joystick-directional-up returns a negative number
-            action_millis = self.joystick.get_axis(1)*-1
-
-        # uses min duration if human does not choose
+        # move (has precedence over turn)
+        if abs(left_directional) > 0.2:
+            left = self.normalize_move_negative(left_directional)
+            right = self.normalize_move_negative(left_directional)
         else:
-            action_millis = 0
 
+            if abs(right_directional) > 0.2:
+
+                # uses abs, because it is difficult for human to rotate backwards, and robot seems to rarely do it
+                right_value = abs(right_directional)
+
+                # move left wheel, turn right
+                if right_directional > 0:
+                    left = self.normalize_move_negative(right_value)
+                    right = 0
+                # move right wheel, turn left
+                if right_directional < 0:
+                    left = 0
+                    right = self.normalize_move_negative(right_value)
+
+        # uses max for human
+        action_millis = 1
         millis = self.normalize_millis(action_millis)
 
-        apply_reward = self.check_apply_reward(robot_left, robot_right, left, right)
+        prop_diff = self.check_correct_action(robot_left, robot_right, left, right)
 
-        return left, right, millis, apply_reward
+        return left, right, millis, prop_diff
 
-    def simplify_action(self, var):
-        if var < 0:
-            var = -1
-        if var == 0:
-            var = 0
-        if var > 0:
-            var = 1
-        return var
+    def check_correct_action(self, robot_left, robot_right, human_left, human_right):
 
-    def check_apply_reward(self, robot_left, robot_right, human_left, human_right):
+        left_diff = abs(robot_left - human_left)
+        right_diff = abs(robot_right - human_right)
+        diff = left_diff+right_diff
 
-        apply_reward = -1
+        range = self.get_range_speed()
+        prop_diff = diff / (range*2*2)
 
-        robot_left = self.simplify_action(robot_left)
-        robot_right = self.simplify_action(robot_right)
-        human_left = self.simplify_action(human_left)
-        human_right = self.simplify_action(human_right)
-
-        if human_left == robot_left and human_right == robot_right:
-            apply_reward = 1
-
-        return apply_reward
+        return prop_diff
 
     def robot_mode(self, actions):
 

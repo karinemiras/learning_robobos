@@ -154,9 +154,9 @@ class ExperimentManager:
 
     def food_print(self):
         if self.mode_train_validation == 'train':
-            print(f'food in episode  {self.current_episode}: {self.env.total_success}  hurt: {self.env.total_hurt}')
+            print(f'food in episode  {self.current_episode}: {self.env.total_success}  hurt: {self.env.total_hurt} steps: {self.env.current_step}')
         else:
-            print(f'   food: {self.env.total_success} hurt: {self.env.total_hurt}')
+            print(f'   food: {self.env.total_success} hurt: {self.env.total_hurt} steps: {self.env.current_step}')
 
         if self.log_food_print:
             file = open(f'experiments/final_tests.txt', 'a')

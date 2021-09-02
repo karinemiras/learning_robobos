@@ -17,7 +17,7 @@ class PlotData:
 
         self.dir = 'experiments/anal/'
         self.measures = ['steps_ma', 'total_success_ma', 'total_hurt_ma', 'rewards_ma']
-        self.measures_limits = [[20, 155], [-0.5, 8], [-10, 1400], [-5, 80]]
+        self.measures_limits = [[20, 175], [-0.5, 8], [-10, 1400], [-5, 80]]
         self.clrs = ['#CC0000', '#006600']
         plt.style.use('classic')
 

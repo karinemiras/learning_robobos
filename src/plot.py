@@ -18,7 +18,7 @@ class PlotData:
 
         self.dir = 'experiments/anal/'
         self.measures = ['steps', 'total_success', 'total_hurt', 'rewards']
-        self.measures_limits = [[20, 150],  [-0.5, 9.5], [-10, 1400], [-10, 100]]
+        self.measures_limits = [[20, 170],  [-0.5, 9.5], [-10, 1400], [-10, 100]]
         self.metrics = ['max', 'mean', 'min', 'median']
         self.clrs = ['#FF3333', '#006600']
 

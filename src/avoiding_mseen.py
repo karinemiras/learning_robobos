@@ -34,6 +34,7 @@ class ForagingEnv(gym.Env):
         self.food_reward = 10
         self.sight_reward = 0.1
         self.avoid_reward = -0.1
+        self.human_reward = -1
 
         # init
         self.done = False
@@ -101,7 +102,7 @@ class ForagingEnv(gym.Env):
         info = {}
 
         # fetches and transforms actions
-        left, right, millis, apply_reward = self.action_selection.select(actions)
+        left, right, millis, prop_diff = self.action_selection.select(actions)
 
         self.robot.move(left, right, millis)
 
@@ -150,9 +151,8 @@ class ForagingEnv(gym.Env):
 
         reward = food_reward + sight + avoid_reward
 
-        if self.config.human_interference:
-            if reward > 0:
-                reward = reward * apply_reward
+        if self.config.human_interference and prop_diff > 0:
+            reward = self.human_reward * prop_diff
 
         # if episode is over
         if self.current_step == episode_length-1 or collected_food == self.max_food:
