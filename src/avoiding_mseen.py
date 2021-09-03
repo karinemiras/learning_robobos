@@ -35,13 +35,13 @@ class ForagingEnv(gym.Env):
         self.sight_reward = 0.1
         self.avoid_reward = -0.1
         self.human_reward = -1
+        self.episode_length = 0
 
         # init
         self.done = False
         self.total_success = 0
         self.total_hurt = 0
         self.current_step = 0
-        self.start_time = None
         self.exp_manager = None
 
         # Define action and sensors space
@@ -119,13 +119,13 @@ class ForagingEnv(gym.Env):
         if self.exp_manager.config.train_or_test == 'train':
             # train
             if self.exp_manager.mode_train_validation == 'train':
-                episode_length = self.config.episode_train_steps
+                self.episode_length = self.config.episode_train_steps
             # validation
             else:
-                episode_length = self.config.episode_validation_steps
+                self.episode_length = self.config.episode_validation_steps
         else:
             # final test
-            episode_length = self.config.episode_test_steps
+            self.episode_length = self.config.episode_test_steps
 
         # calculates rewards
 
@@ -155,7 +155,7 @@ class ForagingEnv(gym.Env):
             reward = self.human_reward * prop_diff
 
         # if episode is over
-        if self.current_step == episode_length-1 or collected_food == self.max_food:
+        if self.current_step == self.episode_length-1 or collected_food == self.max_food:
             self.done = True
             self.exp_manager.food_print()
 

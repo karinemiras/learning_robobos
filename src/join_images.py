@@ -27,4 +27,4 @@ for pre in pres:
           new_im.paste(im, (x_offset,0))
           x_offset += im.size[0]
 
-        new_im.save(f'{type}.png')
+        new_im.save(f'{dir}{type}.png')

@@ -18,7 +18,7 @@ class CustomCallback(BaseCallback):
 
     :param verbose: (int) Verbosity level 0: not output 1: info 2: debug
     """
-    def __init__(self,experiment_manager=None,  verbose=1):
+    def __init__(self, experiment_manager=None,  verbose=1):
         super(CustomCallback, self).__init__(verbose)
         # Those variables will be accessible in the callback
         # (they are defined in the base class)
@@ -82,7 +82,6 @@ class CustomCallback(BaseCallback):
 
     def validate_policy(self):
         if self.num_timesteps % self.experiment_manager.config.validation_freq == 0:
-
             print('> Validating...')
 
             for i in range(1, self.experiment_manager.config.number_validations+1):
@@ -99,7 +98,6 @@ class CustomCallback(BaseCallback):
             print(' ')
 
     def save_checkpoint(self):
-
         if self.num_timesteps % self.experiment_manager.config.checkpoint_timesteps == 0:
 
             self.experiment_manager.current_checkpoint += 1
@@ -222,7 +220,11 @@ class ExperimentManager:
                     self.results_episodes, self.results_episodes_validation, self.current_checkpoint, self.current_episode = pickle.load(f)
 
                     # only recovers pickle if model also available
-                    env2 = DummyVecEnv([lambda: self.env])
+                    # if self.config.human_interference:
+                    #     env2 = DummyVecEnv([lambda: self.env])
+                    # else:
+                    # TODO: fix
+                    env2 = self.env
                     self.model = self.load(f'{dir}/model_checkpoint_{checkpoints[attempts]}', env=env2)
 
                     attempts = -1

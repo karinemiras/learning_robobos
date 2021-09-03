@@ -43,7 +43,7 @@ class Config:
 
         self.parser.add_argument(
             '--episode-train-steps',
-            default=130, type=int,
+            default=10, type=int, #130
             help="Maximum number of steps of an episode while training."
         )
 
@@ -91,7 +91,7 @@ class Config:
 
         self.parser.add_argument(
             '--checkpoint-timesteps',
-            default=1000, type=int,
+            default=10, type=int, #1000
             help="After how many time steps sabes checkpoint."
         )
 
@@ -100,6 +100,21 @@ class Config:
             default='default_experiment', type=str,
             help="Name of the current experiment."
         )
+
+        # these two are being used only in the human experiments
+        self.parser.add_argument(
+            '--algorithm',
+            default='TD', type=str,
+            help="Name of the algorithm; TD or SAC."
+        )
+
+        self.parser.add_argument(
+            '--environment',
+            default='foraging_seen', type=str,
+            help="The environment is a combination of task and sensing schema: "
+                 "foraging_seen, foraging_mseen, avoiding_mseen, avoiding_seen"
+        )
+        ##
 
         # states and actions
 

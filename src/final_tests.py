@@ -72,6 +72,8 @@ config.sim_hard = 'sim'
 log_food_print = True
 experiments = ['avoidmseenSAC_7']
 
+# very good!
+# forseenTD_4
 
 #choice or bests
 tests_type = 'bests'
