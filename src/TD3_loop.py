@@ -30,7 +30,7 @@ class TD3_loop:
 			"action_dim": self.action_dim,
 			"max_action": self.max_action,
 		}
-
+		print('fsdfsdf', self.max_action)
 		# Target policy smoothing is scaled wrt the action scale
 		kwargs["policy_noise"] = self.policy_noise * self.max_action
 		kwargs["noise_clip"] = self.noise_clip * self.max_action
@@ -61,6 +61,15 @@ class TD3_loop:
 
 			# Perform action
 			next_state, reward, done, info = self.env.step(action)
+
+			# if human interfered, uses its actions
+			if len(info) != 0:
+				action = info
+
+			# 	print('fsf',action)
+			# else:
+			# 	print('nooo')
+
 			done_bool = float(done) if episode_timesteps < self.env.episode_length else 0
 
 			callback.num_timesteps += 1

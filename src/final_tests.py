@@ -70,7 +70,7 @@ config.sim_hard = 'sim'
 #config.sim_hard = 'hard'
 
 log_food_print = True
-experiments = ['avoidmseenSAC_7']
+experiments = ['forseenTD_4']
 
 # very good!
 # forseenTD_4

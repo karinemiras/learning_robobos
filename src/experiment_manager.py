@@ -63,6 +63,17 @@ class CustomCallback(BaseCallback):
 
         :return: (bool) If the callback returns False, training is aborted early.
         """
+
+        # if human is interfering, adds actions to replay
+        if len(self.experiment_manager.env.human_actions) > 0:
+            self.experiment_manager.model.replay_buffer.add(
+                        self.experiment_manager.env.human_actions[0],
+                        self.experiment_manager.env.human_actions[1],
+                        self.experiment_manager.env.human_actions[2],
+                        self.experiment_manager.env.human_actions[3],
+                        self.experiment_manager.env.human_actions[4]
+                 )
+
         self.validate_policy()
         self.save_checkpoint()
 
@@ -218,13 +229,13 @@ class ExperimentManager:
                 try:
                     f = open(f'{dir}/status_checkpoint_{checkpoints[attempts]}.pkl', 'rb')
                     self.results_episodes, self.results_episodes_validation, self.current_checkpoint, self.current_episode = pickle.load(f)
-
-                    # only recovers pickle if model also available
+                    #
                     # if self.config.human_interference:
-                    #     env2 = DummyVecEnv([lambda: self.env])
+                    #     env2 = self.env
                     # else:
-                    # TODO: fix
-                    env2 = self.env
+                        # only recovers pickle if model also available
+                    env2 = DummyVecEnv([lambda: self.env])
+
                     self.model = self.load(f'{dir}/model_checkpoint_{checkpoints[attempts]}', env=env2)
 
                     attempts = -1

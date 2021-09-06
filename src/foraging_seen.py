@@ -32,19 +32,22 @@ class ForagingEnv(gym.Env):
         self.max_food = 7
         self.food_reward = 10
         self.sight_reward = 0.1
-        self.human_reward = -1
+        self.human_reward = 10
 
         # init
         self.done = False
+        self.human_actions = []
         self.total_success = 0
         self.total_hurt = 0
         self.current_step = 0
         self.exp_manager = None
         self.episode_length = 0
+        self.previous_sensors = None
 
         # Define action and sensors space
         self.action_space = spaces.Box(low=0, high=1,
                                        shape=(4,), dtype=np.float32)
+
         # why high and low?
         self.observation_space = spaces.Box(low=0, high=1,
                                             shape=(5,), dtype=np.float32)
@@ -92,15 +95,18 @@ class ForagingEnv(gym.Env):
         sensors = self.get_infrared()
         color_y, color_x = self.detect_color()
         sensors = np.append(sensors, [color_y, color_x])
+        sensors = np.array(sensors).astype(np.float32)
 
-        return np.array(sensors).astype(np.float32)
+        self.previous_sensors = sensors
+
+        return sensors
 
     def step(self, actions):
 
         info = {}
 
         # fetches and transforms actions
-        left, right, millis, prop_diff = self.action_selection.select(actions)
+        left, right, millis, prop_diff, human_actions = self.action_selection.select(actions)
 
         self.robot.move(left, right, millis)
 
@@ -143,7 +149,8 @@ class ForagingEnv(gym.Env):
         reward = food_reward + sight
 
         if self.config.human_interference and prop_diff > 0:
-            reward = self.human_reward * prop_diff
+            if reward < 0:
+                reward = self.human_reward
 
         # if episode is over
         if self.current_step == self.episode_length-1 or collected_food == self.max_food:
@@ -154,7 +161,14 @@ class ForagingEnv(gym.Env):
 
         self.exp_manager.register_step(reward)
 
-        return sensors.astype(np.float32), reward, self.done, info
+        sensors = sensors.astype(np.float32)
+
+        human_actions = [self.previous_sensors, sensors, np.array(human_actions), np.array(reward), np.array(self.done)]
+        self.human_actions = human_actions
+
+        self.previous_sensors = sensors
+
+        return sensors, reward, self.done, info
 
     def render(self, mode='console'):
         pass

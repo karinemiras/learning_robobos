@@ -43,7 +43,7 @@ class Config:
 
         self.parser.add_argument(
             '--episode-train-steps',
-            default=10, type=int, #130
+            default=130, type=int,
             help="Maximum number of steps of an episode while training."
         )
 
@@ -85,13 +85,13 @@ class Config:
 
         self.parser.add_argument(
             '--training-timesteps',
-            default=35000, type=int,
+            default=40000, type=int, #35000
             help="Number of total time steps in the training."
         )
 
         self.parser.add_argument(
             '--checkpoint-timesteps',
-            default=10, type=int, #1000
+            default=1000, type=int,
             help="After how many time steps sabes checkpoint."
         )
 
