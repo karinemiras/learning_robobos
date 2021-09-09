@@ -31,22 +31,23 @@ class ForagingEnv(gym.Env):
 
         self.max_food = 7
         self.food_reward = 10
-        self.human_reward = -1
 
         # init
         self.done = False
+        self.human_actions = []
         self.total_success = 0
         self.total_hurt = 0
         self.current_step = 0
         self.exp_manager = None
         self.episode_length = 0
+        self.previous_sensors = None
 
         # Define action and sensors space
         self.action_space = spaces.Box(low=0, high=1,
-                                       shape=(4,), dtype=np.float32)
+                                       shape=(3,), dtype=np.float32)
         # why high and low?
         self.observation_space = spaces.Box(low=0, high=1,
-                                            shape=(6,), dtype=np.float32)
+                                            shape=(14,), dtype=np.float32)
 
         self.action_selection = ActionSelection(self.config)
 
@@ -89,8 +90,10 @@ class ForagingEnv(gym.Env):
             self.robot.set_phone_tilt(92)
 
         sensors = self.get_infrared()
-        prop_green_points, color_y, color_x = self.detect_color()
-        sensors = np.append(sensors, [color_y, color_x, prop_green_points])
+        prop_green_points, color_y, color_x, prop_gray_points, color_y_gray, color_x_gray = self.detect_color()
+        sensors = np.append(sensors, [color_y, color_x, prop_green_points, color_y_gray, color_x_gray, prop_gray_points])
+
+        self.previous_sensors = sensors
 
         return np.array(sensors).astype(np.float32)
 
@@ -105,13 +108,14 @@ class ForagingEnv(gym.Env):
         info = {}
 
         # fetches and transforms actions
-        left, right, millis, prop_diff = self.action_selection.select(actions)
+        left, right, prop_diff, human_actions = self.action_selection.select(actions)
 
-        self.robot.move(left, right, millis)
+        self.robot.move(left, right, 500)
 
         # gets states
         sensors = self.get_infrared()
-        prop_green_points, color_y, color_x = self.detect_color()
+
+        prop_green_points, color_y, color_x, prop_gray_points, color_y_gray, color_x_gray = self.detect_color()
 
         if self.config.sim_hard == 'sim':
             collected_food, aux = self.robot.collected_food()
@@ -143,12 +147,28 @@ class ForagingEnv(gym.Env):
         else:
             sight = -0.1
 
-        sensors = np.append(sensors, [color_y, color_x, prop_green_points])
+        sensors = np.append(sensors, [color_y, color_x, prop_green_points, color_y_gray, color_x_gray, prop_gray_points])
 
-        reward = food_reward + sight
+        sensors_before = max(np.mean(self.previous_sensors), 0.000000001)
+        sensors_now = max(np.mean(sensors), 0.000000001)
+        sensors_exploration = abs(1-( min(sensors_before, sensors_now)/max(sensors_before, sensors_now)))
 
+        if sensors_exploration > 0.01:
+            exploration = 0.2
+        else:
+            exploration = 0
+
+        reward = food_reward + sight + exploration
+
+        human_reward = 0
         if self.config.human_interference and prop_diff > 0:
-            reward = self.human_reward * prop_diff
+               human_reward = reward
+
+                # if human action is successful, punishes robot potential action according to magnitude of success
+               if reward > 0:
+                   reward = -reward * prop_diff
+               else:
+                   reward = 0
 
         # if episode is over
         if self.current_step == self.episode_length-1 or collected_food == self.max_food:
@@ -158,6 +178,13 @@ class ForagingEnv(gym.Env):
         self.current_step += 1
 
         self.exp_manager.register_step(reward)
+
+        sensors = sensors.astype(np.float32)
+
+        human_actions = [self.previous_sensors, sensors, np.array(human_actions), np.array(human_reward), np.array(self.done)]
+        self.human_actions = human_actions
+
+        self.previous_sensors = sensors
 
         return sensors.astype(np.float32), reward, self.done, info
 
@@ -170,7 +197,6 @@ class ForagingEnv(gym.Env):
     def get_infrared(self):
 
         irs = np.asarray(self.robot.read_irs()).astype(np.float32)
-
         if self.config.sim_hard == 'hard':
             # sets threshold for sensors ghosts : change to lambda later
             for idx, val in np.ndenumerate(irs):
@@ -179,15 +205,7 @@ class ForagingEnv(gym.Env):
                 else:
                     irs[idx] = 0
 
-        irs[irs != 0] = 1
-
-        back   = max(irs[0], irs[1], irs[2])
-        front1 = max(irs[3], irs[4], irs[5])
-        front2 = max(irs[5], irs[6], irs[7])
-
-        sensors = [back, front1, front2]
-
-        return sensors
+        return irs
 
     def detect_color(self):
 
@@ -196,9 +214,10 @@ class ForagingEnv(gym.Env):
 
         # mask of green
         mask = cv2.inRange(hsv, (45, 70, 70), (85, 255, 255))
+        mask_gray = cv2.inRange(hsv, (0, 0, 0), (255, 10, 255))
 
-        #cv2.imwrite("imgs/" + str(self.current_step) + "mask.png", mask)
-        #cv2.imwrite("imgs/" + str(self.current_step) + "img.png", image)
+        # cv2.imwrite("imgs/" + str(self.current_step) + "mask.png", mask_gray)
+        # cv2.imwrite("imgs/" + str(self.current_step) + "img.png", image)
 
         size_y = len(image)
         size_x = len(image[0])
@@ -206,6 +225,8 @@ class ForagingEnv(gym.Env):
         total_points = size_y * size_x
         number_green_points = cv2.countNonZero(mask)
         prop_green_points = number_green_points / total_points
+        number_gray_points = cv2.countNonZero(mask_gray)
+        prop_gray_points = number_gray_points / total_points
 
         if cv2.countNonZero(mask) > 0:
             y = np.where(mask == 255)[0]
@@ -214,10 +235,20 @@ class ForagingEnv(gym.Env):
             # average positions normalized by image size
             avg_y = sum(y) / len(y) / (size_y - 1)
             avg_x = sum(x) / len(x) / (size_x - 1)
-
         else:
             avg_y = 0
             avg_x = 0
 
-        return prop_green_points, avg_y, avg_x
+        if cv2.countNonZero(mask_gray) > 0:
+            y_gray = np.where(mask_gray == 255)[0]
+            x_gray = np.where(mask_gray == 255)[1]
+
+            # average positions normalized by image size
+            avg_y_gray = sum(y_gray) / len(y_gray) / (size_y - 1)
+            avg_x_gray = sum(x_gray) / len(x_gray) / (size_x - 1)
+        else:
+            avg_y_gray = 0
+            avg_x_gray = 0
+
+        return prop_green_points, avg_y, avg_x, prop_gray_points, avg_y_gray, avg_x_gray
 

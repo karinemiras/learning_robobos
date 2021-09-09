@@ -32,7 +32,7 @@ class ForagingEnv(gym.Env):
         self.max_food = 7
         self.food_reward = 10
         self.sight_reward = 0.1
-        self.human_reward = 10
+        self.human_penalty = -1
 
         # init
         self.done = False
@@ -46,11 +46,11 @@ class ForagingEnv(gym.Env):
 
         # Define action and sensors space
         self.action_space = spaces.Box(low=0, high=1,
-                                       shape=(4,), dtype=np.float32)
+                                       shape=(3,), dtype=np.float32)
 
         # why high and low?
         self.observation_space = spaces.Box(low=0, high=1,
-                                            shape=(5,), dtype=np.float32)
+                                            shape=(7,), dtype=np.float32)
 
         self.action_selection = ActionSelection(self.config)
 
@@ -92,9 +92,12 @@ class ForagingEnv(gym.Env):
         else:
             self.robot.set_phone_tilt(92)
 
+        pos_x = self.normalize(self.robot.position()[0], 'x')
+        pos_y = self.normalize(self.robot.position()[1], 'y')
+
         sensors = self.get_infrared()
         color_y, color_x = self.detect_color()
-        sensors = np.append(sensors, [color_y, color_x])
+        sensors = np.append(sensors, [color_y, color_x, pos_x, pos_y])
         sensors = np.array(sensors).astype(np.float32)
 
         self.previous_sensors = sensors
@@ -106,9 +109,9 @@ class ForagingEnv(gym.Env):
         info = {}
 
         # fetches and transforms actions
-        left, right, millis, prop_diff, human_actions = self.action_selection.select(actions)
+        left, right, prop_diff, human_actions = self.action_selection.select(actions)
 
-        self.robot.move(left, right, millis)
+        self.robot.move(left, right, 500)
 
         # gets states
         sensors = self.get_infrared()
@@ -144,13 +147,21 @@ class ForagingEnv(gym.Env):
         else:
             sight = -self.sight_reward
 
-        sensors = np.append(sensors, [color_y, color_x])
+        pos_x = self.normalize(self.robot.position()[0], 'x')
+        pos_y = self.normalize(self.robot.position()[1], 'y')
+
+        sensors = np.append(sensors, [color_y, color_x, pos_x, pos_y])
 
         reward = food_reward + sight
 
+        human_reward = 0
         if self.config.human_interference and prop_diff > 0:
-            if reward < 0:
-                reward = self.human_reward
+               human_reward = reward
+               if human_reward > 0:
+                   human_reward *= 100
+               else:
+                   human_reward = 0
+               reward = -reward * prop_diff
 
         # if episode is over
         if self.current_step == self.episode_length-1 or collected_food == self.max_food:
@@ -163,7 +174,7 @@ class ForagingEnv(gym.Env):
 
         sensors = sensors.astype(np.float32)
 
-        human_actions = [self.previous_sensors, sensors, np.array(human_actions), np.array(reward), np.array(self.done)]
+        human_actions = [self.previous_sensors, sensors, np.array(human_actions), np.array(human_reward), np.array(self.done)]
         self.human_actions = human_actions
 
         self.previous_sensors = sensors
@@ -175,6 +186,22 @@ class ForagingEnv(gym.Env):
 
     def close(self):
         pass
+
+    def normalize(self, var, axis):
+        max = 1
+        min = 0
+
+        if axis == 'x':
+            old_min = -4.08
+            old_max = -2.16
+        else:
+            old_min = -0.16
+            old_max = 1.76
+
+        old_range = old_max - old_min
+        new_range = max - min
+        var = (var - old_min) / old_range * new_range + min
+        return var
 
     def get_infrared(self):
 
@@ -202,6 +229,8 @@ class ForagingEnv(gym.Env):
 
         image = self.robot.get_image_front()
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+
+        #cv2.imshow('grayscale image', image)
 
         # mask of green
         mask = cv2.inRange(hsv, (45, 70, 70), (85, 255, 255))

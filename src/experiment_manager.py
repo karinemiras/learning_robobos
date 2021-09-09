@@ -65,7 +65,8 @@ class CustomCallback(BaseCallback):
         """
 
         # if human is interfering, adds actions to replay
-        if len(self.experiment_manager.env.human_actions) > 0:
+        actions_idx = 2
+        if len(self.experiment_manager.env.human_actions[actions_idx]) > 0:
             self.experiment_manager.model.replay_buffer.add(
                         self.experiment_manager.env.human_actions[0],
                         self.experiment_manager.env.human_actions[1],

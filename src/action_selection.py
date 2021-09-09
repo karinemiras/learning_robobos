@@ -41,28 +41,31 @@ class ActionSelection:
         var = (var - old_min) / old_range * new_range + min
         return var
 
-    def normalize_millis(self, var):
-        millis = var * (self.config.max_millis - self.config.min_millis) + self.config.min_millis
-        return millis
+    def normalize_standard_negative(self, var):
+        max = 1
+        min = 0
+
+        old_min = -1
+        old_range = 1 - old_min
+        new_range = max - min
+        var = (var - old_min) / old_range * new_range + min
+        return var
 
     def select(self, actions):
 
-        left, right, millis = self.robot_mode(actions)
+        left, right = self.robot_mode(actions)
         prop_diff = 0
         human_actions = []
-        # temp
-        #human_actions = [0.8, 0.4, 0.4, 1]
 
         # if present, human actions overrule robot actions
         if self.is_human_active():
-            left, right, millis, prop_diff, human_actions = self.human_mode(left, right)
+            left, right, prop_diff, human_actions = self.human_mode(left, right)
 
         if self.config.sim_hard == 'hard':
             left = int(left)
             right = int(right)
-            millis = int(millis)
 
-        return left, right, millis, prop_diff, human_actions
+        return left, right, prop_diff, human_actions
 
     def is_human_active(self):
         if not self.config.human_interference or  pygame.joystick.get_count() == 0:
@@ -96,8 +99,11 @@ class ActionSelection:
 
             if abs(right_directional) > 0.2:
 
-                # uses abs, because it is difficult for human to rotate backwards, and robot seems to rarely do it
                 right_value = abs(right_directional)
+
+                # backwards turn
+                if self.joystick.get_button(4):
+                    right_value *= -1
 
                 # move left wheel, turn right
                 if right_directional > 0:
@@ -114,15 +120,14 @@ class ActionSelection:
                     left = 0
                     right = self.normalize_move_negative(right_value)
 
-        # uses max
-        action_millis = 1
-        millis = self.normalize_millis(action_millis)
-
         prop_diff = self.check_correct_action(robot_left, robot_right, left, right)
 
-        actions = [action_move, action_left, action_right]
+        # normalize to make it comparable to NN outputs
+        actions = [self.normalize_standard_negative(action_move),
+                   self.normalize_standard_negative(action_left),
+                   self.normalize_standard_negative(action_right)]
 
-        return left, right, millis, prop_diff, actions
+        return left, right, prop_diff, actions
 
     def check_correct_action(self, robot_left, robot_right, human_left, human_right):
 
@@ -138,16 +143,12 @@ class ActionSelection:
 
     def robot_mode(self, actions):
 
-        print('robot',actions)
-
         action_move = actions[0]
         action_left = actions[1]
         action_right = actions[2]
-        action_millis = actions[3]
 
         # performs actions
-        choice = actions[0:3]
-        choice = np.argmax(choice)
+        choice = np.argmax(actions)
 
         # move
         if choice == 0:
@@ -162,37 +163,6 @@ class ActionSelection:
             left = 0
             right = self.normalize_move(action_right)
 
-        return left, right, self.normalize_millis(action_millis)
+        return left, right
 
 
-    # def robot_mode(self, actions):
-    #
-    #     actions_cp = copy.deepcopy(actions)
-    #     actions_cp[0] = abs(actions_cp[0])
-    #     actions_cp[1] = abs(actions_cp[1])
-    #     actions_cp[2] = abs(actions_cp[2])
-    #
-    #     action_move = actions[0]
-    #     action_left = actions[1]
-    #     action_right = actions[2]
-    #
-    #     print('robot',actions)
-    #
-    #     choice = np.argmax(actions_cp)
-    #
-    #     # move
-    #     if choice == 0:
-    #         left = self.normalize_move(action_move)
-    #         right = self.normalize_move(action_move)
-    #     # move left wheel
-    #     if choice == 1:
-    #         left = self.normalize_move(action_left)
-    #         right = 0
-    #     # move right wheel
-    #     if choice == 2:
-    #         left = 0
-    #         right = self.normalize_move(action_right)
-    #
-    #     action_millis = 1
-    #
-    #     return left, right, self.normalize_millis(action_millis)
