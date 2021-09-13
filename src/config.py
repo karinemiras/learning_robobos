@@ -43,19 +43,19 @@ class Config:
 
         self.parser.add_argument(
             '--episode-train-steps',
-            default=200, type=int, #130
+            default=200, type=int,
             help="Maximum number of steps of an episode while training."
         )
 
         self.parser.add_argument(
             '--episode-validation-steps',
-            default=200, type=int, #130
+            default=200, type=int,
             help="Maximum duration of an episode while validating (during training)."
         )
 
         self.parser.add_argument(
             '--episode-test-steps',
-            default=200, type=int, #130
+            default=200, type=int,
             help="Maximum duration of an episode while making final tests."
         )
 

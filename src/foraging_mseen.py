@@ -7,7 +7,7 @@ from gym import spaces
 import numpy as np
 import os
 import time
-
+import math
 import robobo
 from action_selection import ActionSelection
 
@@ -85,17 +85,17 @@ class ForagingEnv(gym.Env):
                 pass
 
         if self.config.sim_hard == 'sim':
-            self.robot.set_phone_tilt(-100) # 0.7 is teh same
+            self.robot.set_phone_tilt(55*math.pi/180)
         else:
             self.robot.set_phone_tilt(92)
 
         sensors = self.get_infrared()
         prop_green_points, color_y, color_x, prop_gray_points, color_y_gray, color_x_gray = self.detect_color()
         sensors = np.append(sensors, [color_y, color_x, prop_green_points, color_y_gray, color_x_gray, prop_gray_points])
-
+        sensors = np.array(sensors).astype(np.float32)
         self.previous_sensors = sensors
 
-        return np.array(sensors).astype(np.float32)
+        return sensors
 
     def normal(self, var):
         if self.config.sim_hard == 'sim':
@@ -114,7 +114,6 @@ class ForagingEnv(gym.Env):
 
         # gets states
         sensors = self.get_infrared()
-
         prop_green_points, color_y, color_x, prop_gray_points, color_y_gray, color_x_gray = self.detect_color()
 
         if self.config.sim_hard == 'sim':
@@ -149,26 +148,17 @@ class ForagingEnv(gym.Env):
 
         sensors = np.append(sensors, [color_y, color_x, prop_green_points, color_y_gray, color_x_gray, prop_gray_points])
 
-        sensors_before = max(np.mean(self.previous_sensors), 0.000000001)
-        sensors_now = max(np.mean(sensors), 0.000000001)
-        sensors_exploration = abs(1-( min(sensors_before, sensors_now)/max(sensors_before, sensors_now)))
-
-        if sensors_exploration > 0.01:
-            exploration = 0.2
-        else:
-            exploration = 0
-
-        reward = food_reward + sight + exploration
+        reward = food_reward + sight
 
         human_reward = 0
         if self.config.human_interference and prop_diff > 0:
-               human_reward = reward
 
-                # if human action is successful, punishes robot potential action according to magnitude of success
-               if reward > 0:
-                   reward = -reward * prop_diff
-               else:
-                   reward = 0
+            # if human action is successful, punishes robot potential action according to magnitude of success
+            if reward > 0:
+                human_reward = reward
+                reward = -reward * prop_diff
+            else:
+                reward = -0.1
 
         # if episode is over
         if self.current_step == self.episode_length-1 or collected_food == self.max_food:
@@ -186,7 +176,7 @@ class ForagingEnv(gym.Env):
 
         self.previous_sensors = sensors
 
-        return sensors.astype(np.float32), reward, self.done, info
+        return sensors, reward, self.done, info
 
     def render(self, mode='console'):
         pass
@@ -214,6 +204,7 @@ class ForagingEnv(gym.Env):
 
         # mask of green
         mask = cv2.inRange(hsv, (45, 70, 70), (85, 255, 255))
+        # mask of gray
         mask_gray = cv2.inRange(hsv, (0, 0, 0), (255, 10, 255))
 
         # cv2.imwrite("imgs/" + str(self.current_step) + "mask.png", mask_gray)
