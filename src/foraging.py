@@ -107,7 +107,7 @@ class ForagingEnv(gym.Env):
         # fetches and transforms actions
         left, right, human_actions = self.action_selection.select(actions)
 
-        self.robot.move(left, right, 500)
+        self.robot.move(left, right, 250)
 
         # gets states
         sensors = self.get_infrared()
@@ -184,6 +184,9 @@ class ForagingEnv(gym.Env):
 
         image = self.robot.get_image_front()
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+
+        if self.config.human_interference == 1:
+            cv2.imshow('grayscale image', image)
 
         # mask of green
         mask = cv2.inRange(hsv, (45, 70, 70), (85, 255, 255))

@@ -93,7 +93,7 @@ class CustomCallback(BaseCallback):
                 done = False
                 while not done:
                     action = self.experiment_manager.model.policy.select_action(obs)
-                    state, reward, done, _ = self.experiment_manager.env.step(action)
+                    obs, reward, done, _ = self.experiment_manager.env.step(action)
 
                 self.experiment_manager.mode_train_validation = 'train'
 

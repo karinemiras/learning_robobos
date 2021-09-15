@@ -4,7 +4,7 @@
 
 
 
-experiments=("formseenTD" "formseenSAC" "avoidmseenTD" "avoidmseenSAC")
+experiments=("foraging-TD")
 runs=20
 checkpoints=6
 

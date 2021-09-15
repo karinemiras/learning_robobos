@@ -67,7 +67,7 @@ class Config:
 
         self.parser.add_argument(
             '--number-validations',
-            default=5, type=int, #10
+            default=10, type=int,
             help="Number of episodes to repeat the validation of the policy during training."
         )
 
