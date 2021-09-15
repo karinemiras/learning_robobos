@@ -76,14 +76,7 @@ class PlotData:
 
 
 analysis = {
-     'forseenTD':  ["forseenTD"],
-     'formseenTD': ["formseenTD"],
-     'forseenSAC': ["forseenSAC"],
-     'formseenSAC': ["formseenSAC"],
-     'avoidseenTD': ["avoidseenTD"],
-     'avoidmseenTD': ["avoidmseenTD"],
-     'avoidseenSAC': ["avoidseenSAC"],
-     'avoidmseenSAC': ["avoidmseenSAC"]
+     'foraging-TD':  ["foraging-TD"]
 }
 
 

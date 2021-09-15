@@ -2,7 +2,9 @@ import numpy as np
 
 from TD3.utils import ReplayBuffer
 from TD3.TD3 import TD3
-
+import os
+os.environ["KMP_WARNINGS"] = "FALSE"
+os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
 class TD3_loop:
 
@@ -30,7 +32,7 @@ class TD3_loop:
 			"action_dim": self.action_dim,
 			"max_action": self.max_action,
 		}
-		print('fsdfsdf', self.max_action)
+
 		# Target policy smoothing is scaled wrt the action scale
 		kwargs["policy_noise"] = self.policy_noise * self.max_action
 		kwargs["noise_clip"] = self.noise_clip * self.max_action
@@ -65,10 +67,15 @@ class TD3_loop:
 			# if human interfered, uses its actions
 			if len(info) != 0:
 				action = info
-
-			# 	print('fsf',action)
+				human_reward_base = 1
+				# if human action is successful, punishes robot potential action according to magnitude of success
+				if reward > 0:
+					reward = human_reward_base + reward
+				else:
+					reward = human_reward_base
+			# 	print('h',action,reward)
 			# else:
-			# 	print('nooo')
+			# 	print('r', action, reward)
 
 			done_bool = float(done) if episode_timesteps < self.env.episode_length else 0
 

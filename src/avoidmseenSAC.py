@@ -7,7 +7,7 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
 from config import Config
 from experiment_manager import ExperimentManager
-from avoiding_mseen import ForagingEnv
+from avoiding import ForagingEnv
 
 from stable_baselines3 import SAC
 from stable_baselines3.sac.policies import MlpPolicy

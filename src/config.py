@@ -109,10 +109,9 @@ class Config:
         )
 
         self.parser.add_argument(
-            '--environment',
-            default='foraging_seen', type=str,
-            help="The environment is a combination of task and sensing schema: "
-                 "foraging_seen, foraging_mseen, avoiding_mseen, avoiding_seen"
+            '--task',
+            default='foraging', type=str,
+            help="foraging or avoiding"
         )
         ##
 

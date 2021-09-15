@@ -115,16 +115,8 @@ class PlotData:
             plot.get_figure().savefig(f'{self.dir}{self.anal}_{measure}_box.png', bbox_inches='tight')
             plt.clf()
 
-
 analysis = {
-     'forseenTD':  ["forseenTD"],
-     'formseenTD': ["formseenTD"],
-     'forseenSAC': ["forseenSAC"],
-     'formseenSAC': ["formseenSAC"],
-     'avoidseenTD': ["avoidseenTD"],
-     'avoidmseenTD': ["avoidmseenTD"],
-     'avoidseenSAC': ["avoidseenSAC"],
-     'avoidmseenSAC': ["avoidmseenSAC"]
+     'foraging-TD':  ["foraging-TD"]
 }
 
 

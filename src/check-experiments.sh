@@ -3,7 +3,8 @@
 #set -x
 
 
-experiments=("avoidseenTD" "avoidmseenTD" "avoidseenSAC" "avoidmseenSAC")
+
+experiments=("formseenTD" "formseenSAC" "avoidmseenTD" "avoidmseenSAC")
 runs=20
 checkpoints=6
 

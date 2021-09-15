@@ -2,12 +2,12 @@
 #set -e
 #set -x
 
-#experiments=("formseenTD" "formseenSAC")
-#validation_steps=200
 
-experiments=("avoidmseenTD")
-# "avoidmseenSAC"
-validation_steps=230
+experiments=("foraging-TD")
+validation_steps=200
+
+# validation_steps=230
+
 
 runs=20
 checkpoints=35
@@ -105,7 +105,11 @@ while true
     p=0
     for to_d in "${to_do[@]}"; do
 
-        screen -d -m -S exp_${free_screens[$p]}_${to_d} -L -Logfile experiments/"${to_d}.log" nice -n19 python3  src/$(cut -d'_' -f1 <<<"${to_d}").py --experiment-name ${to_d} --episode-validation-steps $validation_steps --robot-port ${free_screens[$p]};
+        exp=$(cut -d'_' -f1 <<<"${to_d}")
+        task=$(cut -d'-' -f1 <<<"${exp}")
+        alg=$(cut -d'-' -f2 <<<"${exp}")
+
+        screen -d -m -S exp_${free_screens[$p]}_${to_d} -L -Logfile experiments/"${to_d}.log" nice -n19 python3  src/human_experiments.py --task ${task} --algorithm ${alg} --experiment-name ${to_d} --episode-validation-steps $validation_steps --robot-port ${free_screens[$p]};
 
         printf "\n >> (re)starting exp_${free_screens[$p]}_${to_d} \n\n"
         p=$((${p}+1))

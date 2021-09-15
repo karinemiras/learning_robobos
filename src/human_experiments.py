@@ -7,20 +7,14 @@ from TD3_loop import TD3_loop
 config = Config()
 config = config.parser.parse_args()
 
-if config.environment == 'foraging_seen':
-    from foraging_seen import ForagingEnv
+if config.task == 'foraging':
+    from foraging import ForagingEnv
 
-if config.environment == 'foraging_mseen':
-    from foraging_mseen import ForagingEnv
-
-if config.environment == 'avoiding_mseen':
-    from avoiding_mseen import ForagingEnv
-
-if config.environment == 'avoiding_seen':
-    from avoiding_seen import ForagingEnv
+if config.task == 'avoiding':
+    from avoiding import ForagingEnv
 
 
-foraging_env = ForagingEnv(config=config)
+env = ForagingEnv(config=config)
 
 
 def load(dir, env):
@@ -29,10 +23,10 @@ def load(dir, env):
     return td
 
 
-model = TD3_loop(foraging_env)
+model = TD3_loop(env)
 
 ExperimentManager(config=config,
                   model=model,
-                  environment=foraging_env,
+                  environment=env,
                   load=load
                   ).run()

@@ -6,18 +6,18 @@ import pprint
 import sys
 from experiment_manager import ExperimentManager
 
-from foraging_seen import ForagingEnv as ForagingEnv
-from foraging_mseen import ForagingEnv as ForagingmEnv
-from avoiding_seen import ForagingEnv as AvoidingEnv
-from avoiding_mseen import ForagingEnv as AvoidingmEnv
+from foraging import ForagingEnv as ForagingEnv
+from avoiding import ForagingEnv as AvoidingEnv
 
-from stable_baselines3 import TD3
+from TD3_loop import TD3_loop
 from stable_baselines3 import SAC
 
 
 
-def load_td(name, env):
-    return TD3.load(name, env)
+def load_td(dir, env):
+    td = TD3_loop(env)
+    td.load(dir)
+    return td
 
 
 def load_sac(name, env):
@@ -46,15 +46,10 @@ def extract_info(experiment):
         load = load_sac
 
     if task == 'f':
-        if reward == 'm':
-            env = ForagingmEnv(config=config)
-        else:
-            env = ForagingEnv(config=config)
+
+        env = ForagingEnv(config=config)
     else:
-        if reward == 'm':
-            env = AvoidingmEnv(config=config)
-        else:
-            env = AvoidingEnv(config=config)
+        env = AvoidingEnv(config=config)
 
     return load, env
 
@@ -62,7 +57,7 @@ def extract_info(experiment):
 ###
 config = Config()
 config = config.parser.parse_args()
-config.robot_port = 19997
+config.robot_port = 20020#19997
 config.train_or_test = 'test'
 
 # for final tests, run once with sim and once with hard
@@ -70,7 +65,7 @@ config.sim_hard = 'sim'
 #config.sim_hard = 'hard'
 
 log_food_print = True
-experiments = ['forseenTD_4']
+experiments = ['formseenTD_17']
 
 # very good!
 # forseenTD_4
@@ -81,9 +76,9 @@ tests_type = 'bests'
 
 if tests_type == 'choice':
 
-    experiment =  'avoidmseenSAC'
-    run = '7'
-    checkpoint = 35
+    experiment =  'foraging-TD'
+    run = '2'
+    checkpoint = 27
 
     load, env = extract_info(experiment)
     run_test(log_food_print, experiment, run, load, env, checkpoint)

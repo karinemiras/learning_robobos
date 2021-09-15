@@ -125,10 +125,11 @@ class ConsolidateData:
         return x.quantile(0.75)
 
 
-experiments = ["forseenTD", "formseenTD", "forseenSAC", "formseenSAC",
-               "avoidseenTD", "avoidmseenTD" ,"avoidseenSAC", "avoidmseenSAC"]
+# experiments = ["forseenTD", "formseenTD", "forseenSAC", "formseenSAC",
+#                "avoidseenTD", "avoidmseenTD" ,"avoidseenSAC", "avoidmseenSAC"]
 
 
+experiments = ["foraging-TD"]
 
 for experiment in experiments:
     cd = ConsolidateData(

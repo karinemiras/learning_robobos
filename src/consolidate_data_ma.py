@@ -72,8 +72,7 @@ class ConsolidateData:
             attempts -= 1
 
 
-experiments = ["forseenTD", "formseenTD", "forseenSAC", "formseenSAC",
-               "avoidseenTD", "avoidmseenTD" ,"avoidseenSAC", "avoidmseenSAC"]
+experiments = ["foraging-TD"]
 
 for experiment in experiments:
     cd = ConsolidateData(

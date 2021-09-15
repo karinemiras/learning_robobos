@@ -4,6 +4,7 @@ import pprint
 import os
 import time
 import traceback
+import numpy as np
 
 from stable_baselines3.common.vec_env import DummyVecEnv
 from stable_baselines3 import TD3
@@ -64,17 +65,6 @@ class CustomCallback(BaseCallback):
         :return: (bool) If the callback returns False, training is aborted early.
         """
 
-        # if human is interfering, adds actions to replay
-        actions_idx = 2
-        if len(self.experiment_manager.env.human_actions[actions_idx]) > 0:
-            self.experiment_manager.model.replay_buffer.add(
-                        self.experiment_manager.env.human_actions[0],
-                        self.experiment_manager.env.human_actions[1],
-                        self.experiment_manager.env.human_actions[2],
-                        self.experiment_manager.env.human_actions[3],
-                        self.experiment_manager.env.human_actions[4]
-                 )
-
         self.validate_policy()
         self.save_checkpoint()
 
@@ -102,8 +92,8 @@ class CustomCallback(BaseCallback):
                 obs = self.experiment_manager.env.reset()
                 done = False
                 while not done:
-                    action, _states = self.experiment_manager.model.predict(obs)
-                    obs, rewards, done, info = self.experiment_manager.env.step(action)
+                    action = self.experiment_manager.model.policy.select_action(obs)
+                    state, reward, done, _ = self.experiment_manager.env.step(action)
 
                 self.experiment_manager.mode_train_validation = 'train'
 
@@ -230,13 +220,8 @@ class ExperimentManager:
                 try:
                     f = open(f'{dir}/status_checkpoint_{checkpoints[attempts]}.pkl', 'rb')
                     self.results_episodes, self.results_episodes_validation, self.current_checkpoint, self.current_episode = pickle.load(f)
-                    #
-                    # if self.config.human_interference:
-                    #     env2 = self.env
-                    # else:
-                        # only recovers pickle if model also available
-                    env2 = DummyVecEnv([lambda: self.env])
 
+                    env2 = self.env
                     self.model = self.load(f'{dir}/model_checkpoint_{checkpoints[attempts]}', env=env2)
 
                     attempts = -1
@@ -259,8 +244,8 @@ class ExperimentManager:
             obs = self.env.reset()
             done = False
             while not done:
-                action, _states = self.model.predict(obs)
-                obs, rewards, done, info = self.env.step(action)
+                action = self.model.select_action(np.array(obs))
+                state, reward, done, _ = self.env.step(action)
 
 
     #TODO: reuse this function in preparestage later
