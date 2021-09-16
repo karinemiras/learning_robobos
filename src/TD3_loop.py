@@ -8,14 +8,20 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
 class TD3_loop:
 
-	def __init__(self, environment):
+	def __init__(self, environment, config):
+		self.config = config
 		self.env = environment
 		self.policy = None
 
 		self.max_timesteps = 0  # Max time steps to run environment
 		self.start_timesteps = 0   			 # Time steps initial random policy is used
 		self.expl_noise = 0.1     			 # Std of Gaussian exploration noise
-		self.batch_size = 128      			 # Batch size for both actor and critic
+
+		if self.config.human_interference == 1:
+			self.batch_size = self.config.episode_train_steps   # Batch size for both actor and critic
+		else:
+			self.batch_size = 128
+
 		self.policy_noise = 0.2				 # Noise added to target policy during critic update
 		self.noise_clip = 0.5  				 # Range to clip target policy noise
 		self.policy_freq = 2 				 # Frequency of delayed policy updates
@@ -43,12 +49,19 @@ class TD3_loop:
 
 		self.max_timesteps = total_timesteps
 
-		replay_buffer = ReplayBuffer(self.state_dim, self.action_dim)
+		# if human mode off, buffer never gets cleaned
+		if self.config.human_interference == 0:
+			replay_buffer = ReplayBuffer(self.state_dim, self.action_dim)
 
 		state, done = self.env.reset(), False
 		episode_timesteps = 0
 
 		for t in range(int(self.max_timesteps)):
+
+			# if human mode on, cleans buffer at every beginning of episode
+			if self.config.human_interference == 1:
+				if episode_timesteps == 0:
+					replay_buffer = ReplayBuffer(self.state_dim, self.action_dim)
 
 			episode_timesteps += 1
 
@@ -73,9 +86,6 @@ class TD3_loop:
 					reward = human_reward_base + reward
 				else:
 					reward = human_reward_base
-			# 	print('h',action,reward)
-			# else:
-			# 	print('r', action, reward)
 
 			done_bool = float(done) if episode_timesteps < self.env.episode_length else 0
 

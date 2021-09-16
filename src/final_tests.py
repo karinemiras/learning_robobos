@@ -10,18 +10,12 @@ from foraging import ForagingEnv as ForagingEnv
 from avoiding import ForagingEnv as AvoidingEnv
 
 from TD3_loop import TD3_loop
-from stable_baselines3 import SAC
 
 
-
-def load_td(dir, env):
-    td = TD3_loop(env)
+def load_td(dir, env, config):
+    td = TD3_loop(env, config)
     td.load(dir)
     return td
-
-
-def load_sac(name, env):
-    return SAC.load(name, env)
 
 
 def run_test(log_food_print, experiment, run, load, env, checkpoint):
@@ -36,17 +30,13 @@ def run_test(log_food_print, experiment, run, load, env, checkpoint):
 
 def extract_info(experiment):
 
-    algorithm = experiment.split("seen")[1]
-    reward = experiment.split("seen")[0][-1]
-    task = experiment.split("seen")[0][0]
+    algorithm = experiment.split("-")[1]
+    task = experiment.split("-")[0]
 
     if algorithm == 'TD':
         load = load_td
-    else:
-        load = load_sac
 
-    if task == 'f':
-
+    if task == 'foraging':
         env = ForagingEnv(config=config)
     else:
         env = AvoidingEnv(config=config)
@@ -57,7 +47,7 @@ def extract_info(experiment):
 ###
 config = Config()
 config = config.parser.parse_args()
-config.robot_port = 20020#19997
+config.robot_port = 20020 #19997
 config.train_or_test = 'test'
 
 # for final tests, run once with sim and once with hard
@@ -65,10 +55,8 @@ config.sim_hard = 'sim'
 #config.sim_hard = 'hard'
 
 log_food_print = True
-experiments = ['formseenTD_17']
+experiments = ['foraging-TD_1']
 
-# very good!
-# forseenTD_4
 
 #choice or bests
 tests_type = 'bests'
@@ -77,8 +65,8 @@ tests_type = 'bests'
 if tests_type == 'choice':
 
     experiment =  'foraging-TD'
-    run = '2'
-    checkpoint = 27
+    run = '11'
+    checkpoint = 35
 
     load, env = extract_info(experiment)
     run_test(log_food_print, experiment, run, load, env, checkpoint)

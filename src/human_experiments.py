@@ -17,13 +17,13 @@ if config.task == 'avoiding':
 env = ForagingEnv(config=config)
 
 
-def load(dir, env):
-    td = TD3_loop(env)
+def load(dir, env, config):
+    td = TD3_loop(env, config)
     td.load(dir)
     return td
 
 
-model = TD3_loop(env)
+model = TD3_loop(env, config)
 
 ExperimentManager(config=config,
                   model=model,

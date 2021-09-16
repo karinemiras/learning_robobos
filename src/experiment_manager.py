@@ -222,10 +222,9 @@ class ExperimentManager:
                     self.results_episodes, self.results_episodes_validation, self.current_checkpoint, self.current_episode = pickle.load(f)
 
                     env2 = self.env
-                    self.model = self.load(f'{dir}/model_checkpoint_{checkpoints[attempts]}', env=env2)
+                    self.model = self.load(f'{dir}/model_checkpoint_{checkpoints[attempts]}', env=env2, config=self.config)
 
                     attempts = -1
-
                     self.log.write(f'RECOVERED checkpoint {checkpoints[attempts]}')
 
                 except:
@@ -244,18 +243,16 @@ class ExperimentManager:
             obs = self.env.reset()
             done = False
             while not done:
-                action = self.model.select_action(np.array(obs))
-                state, reward, done, _ = self.env.step(action)
+                action = self.model.policy.select_action(obs)
+                obs, reward, done, _ = self.env.step(action)
 
 
     #TODO: reuse this function in preparestage later
     def load_stage(self, checkpoint):
         dir = f'experiments/{self.config.experiment_name}'
         f = open(f'{dir}/status_checkpoint_{checkpoint}.pkl', 'rb')
-
         self.results_episodes, self.results_episodes_validation, self.current_checkpoint, self.current_episode = pickle.load(f)
-        # only recovers pickle if model also available
-        env2 = DummyVecEnv([lambda: self.env])
-        self.model = self.load(f'{dir}/model_checkpoint_{checkpoint}', env=env2)
+        env2 = self.env
+        self.model = self.load(f'{dir}/model_checkpoint_{checkpoint}', env=env2, config=self.config)
 
 

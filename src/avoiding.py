@@ -11,7 +11,7 @@ import pprint
 import math
 
 import robobo
-from action_selection import ActionSelection
+from action_selection_c import ActionSelection
 
 # TODO: fix this?
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
@@ -40,12 +40,10 @@ class ForagingEnv(gym.Env):
 
         # init
         self.done = False
-        self.human_actions = []
         self.total_success = 0
         self.total_hurt = 0
         self.current_step = 0
         self.exp_manager = None
-        self.previous_sensors = None
 
         # Define action and sensors space
         self.action_space = spaces.Box(low=0, high=1,
@@ -109,7 +107,7 @@ class ForagingEnv(gym.Env):
         # fetches and transforms actions
         left, right, prop_diff, human_actions = self.action_selection.select(actions)
 
-        self.robot.move(left, right, 500)
+        self.robot.move(left, right, 250)
 
         # gets states
         sensors = self.get_infrared()
@@ -156,16 +154,6 @@ class ForagingEnv(gym.Env):
 
         reward = food_reward + sight + avoid_reward
 
-        human_reward = 0
-        if self.config.human_interference and prop_diff > 0:
-
-            # if human action is successful, punishes robot potential action according to magnitude of success
-            if reward > 0:
-                human_reward = reward
-                reward = -reward * prop_diff
-            else:
-                reward = -0.1
-
         # if episode is over
         if self.current_step == self.episode_length-1 or collected_food == self.max_food:
             self.done = True
@@ -177,10 +165,7 @@ class ForagingEnv(gym.Env):
 
         sensors = sensors.astype(np.float32)
 
-        human_actions = [self.previous_sensors, sensors, np.array(human_actions), np.array(human_reward), np.array(self.done)]
-        self.human_actions = human_actions
-
-        self.previous_sensors = sensors
+        info = human_actions
 
         return sensors, reward, self.done, info
 
