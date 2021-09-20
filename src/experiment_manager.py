@@ -6,8 +6,6 @@ import time
 import traceback
 import numpy as np
 
-from stable_baselines3.common.vec_env import DummyVecEnv
-from stable_baselines3 import TD3
 from stable_baselines3.common.callbacks import BaseCallback
 
 from info_log import Log
@@ -219,7 +217,13 @@ class ExperimentManager:
             while attempts >= 0:
                 try:
                     f = open(f'{dir}/status_checkpoint_{checkpoints[attempts]}.pkl', 'rb')
-                    self.results_episodes, self.results_episodes_validation, self.current_checkpoint, self.current_episode = pickle.load(f)
+                    env_data = pickle.load(f)
+
+                    # TODO: always save 5th element
+                    if len(env_data) > 4:
+                        self.results_episodes, self.results_episodes_validation, self.current_checkpoint, self.current_episode, self.human_steps = env_data
+                    else:
+                        self.results_episodes, self.results_episodes_validation, self.current_checkpoint, self.current_episode = env_data
 
                     env2 = self.env
                     self.model = self.load(f'{dir}/model_checkpoint_{checkpoints[attempts]}', env=env2, config=self.config)
@@ -245,6 +249,7 @@ class ExperimentManager:
             while not done:
                 action = self.model.policy.select_action(obs)
                 obs, reward, done, _ = self.env.step(action)
+        self.env.robot.stop_world()
 
 
     #TODO: reuse this function in preparestage later

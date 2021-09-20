@@ -83,9 +83,10 @@ class ForagingEnv(gym.Env):
                 pass
 
         if self.config.sim_hard == 'sim':
+            # degrees to radians
             self.robot.set_phone_tilt(55*math.pi/180)
         else:
-            self.robot.set_phone_tilt(92)
+            self.robot.set_phone_tilt(109)
 
         sensors = self.get_infrared()
         prop_green_points, color_y, color_x, prop_gray_points, color_y_gray, color_x_gray = self.detect_color()
@@ -101,7 +102,6 @@ class ForagingEnv(gym.Env):
             return var * (self.config.max_speed_hard - self.config.min_speed_hard) + self.config.min_speed_hard
 
     def step(self, actions):
-
         info = {}
 
         # fetches and transforms actions
@@ -181,17 +181,24 @@ class ForagingEnv(gym.Env):
         return irs
 
     def detect_color(self):
-
         image = self.robot.get_image_front()
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
-        if self.config.human_interference == 1:
-            cv2.imshow('grayscale image', image)
+        if self.config.human_interference == 1 and self.config.sim_hard == 'sim':
+            cv2.imshow('robot view', image)
+            cv2.waitKey(1)
 
         # mask of green
         mask = cv2.inRange(hsv, (45, 70, 70), (85, 255, 255))
+
         # mask of gray
-        mask_gray = cv2.inRange(hsv, (0, 0, 0), (255, 10, 255))
+        if self.config.sim_hard == 'hard':
+            # for hardware, uses a red mask instead of gray
+            mask_gray1 = cv2.inRange(hsv, (159, 50, 70), (180, 255, 255))
+            mask_gray2 = cv2.inRange(hsv, (0, 50, 70), (9, 255, 255))
+            mask_gray = mask_gray1 + mask_gray2
+        else:
+            mask_gray = cv2.inRange(hsv, (0, 0, 0), (255, 10, 255))
 
         # cv2.imwrite("imgs/" + str(self.current_step) + "mask.png", mask_gray)
         # cv2.imwrite("imgs/" + str(self.current_step) + "img.png", image)

@@ -4,10 +4,6 @@
 
 
 experiments=("foraging-TD")
-validation_steps=200
-
-# validation_steps=230
-
 
 runs=20
 checkpoints=35
@@ -109,7 +105,7 @@ while true
         task=$(cut -d'-' -f1 <<<"${exp}")
         alg=$(cut -d'-' -f2 <<<"${exp}")
 
-        screen -d -m -S exp_${free_screens[$p]}_${to_d} -L -Logfile experiments/"${to_d}.log" nice -n19 python3  src/human_experiments.py --task ${task} --algorithm ${alg} --experiment-name ${to_d} --episode-validation-steps $validation_steps --robot-port ${free_screens[$p]};
+        screen -d -m -S exp_${free_screens[$p]}_${to_d} -L -Logfile experiments/"${to_d}.log" nice -n19 python3  src/human_experiments.py --task ${task} --algorithm ${alg} --experiment-name ${to_d} --robot-port ${free_screens[$p]};
 
         printf "\n >> (re)starting exp_${free_screens[$p]}_${to_d} \n\n"
         p=$((${p}+1))

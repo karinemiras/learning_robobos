@@ -124,6 +124,7 @@ class ConsolidateData:
     def q75(self, x):
         return x.quantile(0.75)
 
+
 experiments = ["foraging-TD"]
 
 for experiment in experiments:

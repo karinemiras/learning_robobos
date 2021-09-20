@@ -1,13 +1,12 @@
 import numpy as np
-import pygame
 import copy
+import pygame
 
 
 class ActionSelection:
 
     def __init__(self, config):
         self.config = config
-
         pygame.init()
         pygame.joystick.init()
 
@@ -57,7 +56,7 @@ class ActionSelection:
         return left, right, human_actions
 
     def is_human_active(self):
-        if not self.config.human_interference or  pygame.joystick.get_count() == 0:
+        if not self.config.human_interference or pygame.joystick.get_count() == 0:
             return False
 
         pygame.event.get()

@@ -4,10 +4,10 @@ import pandas as pd
 from config import Config
 import pprint
 import sys
+import time
 from experiment_manager import ExperimentManager
 
 from foraging import ForagingEnv as ForagingEnv
-from avoiding import ForagingEnv as AvoidingEnv
 
 from TD3_loop import TD3_loop
 
@@ -38,8 +38,6 @@ def extract_info(experiment):
 
     if task == 'foraging':
         env = ForagingEnv(config=config)
-    else:
-        env = AvoidingEnv(config=config)
 
     return load, env
 
@@ -55,16 +53,19 @@ config.sim_hard = 'sim'
 #config.sim_hard = 'hard'
 
 log_food_print = True
-experiments = ['foraging-TD_1']
-
-
 #choice or bests
-tests_type = 'bests'
+tests_type = 'best'
+#tests_type = 'choice'
+
+experiments = ['foraging-TD_11']
+# runs=20
+# for i in range(1, runs+1):
+#     experiments.append('foraging-TD_'+str(i))
 
 
 if tests_type == 'choice':
 
-    experiment =  'foraging-TD'
+    experiment = 'foraging-TD'
     run = '11'
     checkpoint = 35
 
@@ -80,7 +81,6 @@ else:
         run = aux_str[1]
 
         full_data_agreg = pd.read_csv(f'experiments/anal/{experiment}_full_data.csv')
-        data_filtered = pd.DataFrame()
 
         exp_run = full_data_agreg[
             (full_data_agreg['experiment'] == experiment) & (full_data_agreg['run'] == int(run))]
@@ -89,11 +89,9 @@ else:
         exp_run = exp_run[exp_run['steps'] == exp_run["steps"].min()]
         exp_run = exp_run[exp_run['checkpoint'] == exp_run["checkpoint"].max()]
 
-        data_filtered = pd.concat([data_filtered, exp_run], axis=0)
+        pprint.pprint(exp_run)
 
-        pprint.pprint(data_filtered)
-
-        for row in data_filtered.iterrows():
+        for row in exp_run.iterrows():
 
             checkpoint = row[1]["checkpoint"]
             run = row[1]["run"]
@@ -102,4 +100,5 @@ else:
             print('checkpoint', checkpoint)
 
             run_test(log_food_print, experiment, run, load, env, checkpoint)
+
 

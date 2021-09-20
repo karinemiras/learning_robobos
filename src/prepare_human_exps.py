@@ -2,49 +2,60 @@ import numpy as np
 import pprint
 import pandas as pd
 import shutil, os
+import glob
 
 pd.set_option("display.max_rows", 99999)
 
+
 class PlotData:
 
-    def __init__(self, experiment):
+    def __init__(self, experiment, runs):
         self.experiment = experiment
         self.dir = 'experiments/'
+        self.runs = runs
+        self.robot_port = 20020  # 19997
+        self.max_steps = 37000
 
-    def replicate(self, file):
+    def replicate(self):
 
-        full_data_agreg = pd.read_csv(f'{self.dir}{self.experiment}_full_data.csv')
-        full_data_agreg = full_data_agreg[full_data_agreg['episode'] == full_data_agreg["episode"].max()]
-        full_data_agreg = full_data_agreg.sort_values(by=['total_success'])
+        full_data_agreg = pd.read_csv(f'{self.dir}anal/{self.experiment}_full_data.csv')
 
-        # fetches worst runs up to first quartile
-        prop_worst = 0.25
-        data_worst = full_data_agreg[0:int(full_data_agreg.shape[0]*prop_worst)]
-        pprint.pprint(data_worst)
-        file.write(f'\n{data_worst.to_string()}\n')
+        out_file = open(f'experiments/run_human_experiments.txt', "w")
+        for run in self.runs:
+            exp_run = full_data_agreg[
+                (full_data_agreg['experiment'] == experiment) & (full_data_agreg['run'] == int(run))]
+            exp_run = exp_run[(exp_run['total_success'] == exp_run["total_success"].max())]
+            exp_run = exp_run[exp_run['total_hurt'] == exp_run["total_hurt"].min()]
+            exp_run = exp_run[exp_run['steps'] == exp_run["steps"].min()]
+            exp_run = exp_run[exp_run['checkpoint'] == exp_run["checkpoint"].max()]
+            print(exp_run)
 
-        for index, row in data_worst.iterrows():
+            experiment_name_new = f"h_{experiment}_{run}"
+            os.mkdir(f'{self.dir}{experiment_name_new}')
 
-            experiment_name_new = f"{experiment}_h_{row['run']}"
+            for file in glob.glob(f'{self.dir}{experiment}_{run}/*'):
+                if file[-4:-1] != '.tx':
+                    checkpoint = int(file.split('_')[3].split('.')[0])
+                    if checkpoint <= exp_run["checkpoint"].max():
+                        file_name = file.split('/')[2]
+                        shutil.copyfile(f'{file}', f'{self.dir}{experiment_name_new}/{file_name}')
 
-            # copying
-            shutil.copytree(f'{self.dir}{experiment}_{row["run"]}', f'{self.dir}{experiment_name_new}')
+            task = experiment.split('-')[0]
+            alg = experiment.split('-')[1]
+            command = f'python3 src/human_experiments.py --experiment-name {experiment_name_new} --task {task} --algorithm {alg}  --robot-port {self.robot_port}' \
+                f' --training-timesteps {self.max_steps} --human-interference 1\n'
+            out_file.write(command)
+        out_file.close()
 
-            command = f'python3 src/{experiment}.py --experiment-name {experiment_name_new} ' \
-                f'--training-timesteps 40000 \n'
-            file.write(command)
 
+experiments = ['foraging-TD']
 
-experiments = [ 'for_seen_TD',
-                'for_mseen_TD']
-
-file = open(f'experiments/run_human_experiments.txt', "w")
 
 for experiment in experiments:
-    cd = PlotData(experiment)
-    cd.replicate(file)
+    cd = PlotData(experiment, runs=range(1, 1+1))
+    cd.replicate()
 
-file.close()
+
 
 
 
