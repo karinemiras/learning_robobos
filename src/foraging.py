@@ -158,6 +158,11 @@ class ForagingEnv(gym.Env):
         sensors = sensors.astype(np.float32)
 
         info = human_actions
+        if len(human_actions) > 0:
+            took_action = 1
+        else:
+            took_action = 0
+        self.exp_manager.human_steps.append([self.exp_manager.current_episode, took_action])
 
         return sensors, reward, self.done, info
 
@@ -171,12 +176,15 @@ class ForagingEnv(gym.Env):
 
         irs = np.asarray(self.robot.read_irs()).astype(np.float32)
         if self.config.sim_hard == 'hard':
-            # sets threshold for sensors ghosts : change to lambda later
+
             for idx, val in np.ndenumerate(irs):
+                # 100 is the noise of ghost signals
                 if irs[idx] >= 100:
-                    irs[idx] = 1
+                    irs[idx] = 1/math.log(irs[idx], 2)
                 else:
                     irs[idx] = 0
+
+        # TODO: when 0, set it as 1
 
         return irs
 

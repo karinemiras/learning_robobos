@@ -5,7 +5,7 @@
 
 experiments=("foraging-TD")
 
-runs=20
+runs=21
 checkpoints=35
 
 num_terminals=20

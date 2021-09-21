@@ -9,12 +9,7 @@ config = config.parser.parse_args()
 
 if config.task == 'foraging':
     from foraging import ForagingEnv
-
-if config.task == 'avoiding':
-    from avoiding import ForagingEnv
-
-
-env = ForagingEnv(config=config)
+    env = ForagingEnv(config=config)
 
 
 def load(dir, env, config):
