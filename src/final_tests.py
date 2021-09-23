@@ -12,9 +12,9 @@ from foraging import ForagingEnv as ForagingEnv
 from TD3_loop import TD3_loop
 
 
-def load_td(dir, env, config):
+def load_td(dir1, dir2, env, config):
     td = TD3_loop(env, config)
-    td.load(dir)
+    td.load(dir1, dir2)
     return td
 
 
@@ -54,10 +54,12 @@ config.sim_hard = 'sim'
 
 log_food_print = True
 #choice or bests
-tests_type = 'best'
+tests_type = 'bests'
 #tests_type = 'choice'
 
 experiments = ['foraging-TD_11']
+
+
 # runs=20
 # for i in range(1, runs+1):
 #     experiments.append('foraging-TD_'+str(i))

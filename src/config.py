@@ -29,7 +29,7 @@ class Config:
 
         self.parser.add_argument(
             '--robot-ip',
-            default='145.108.196.188', type=str,
+            default='10.15.3.187', type=str,
             help="Ip of the robot in simulation."
         )
 

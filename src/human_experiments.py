@@ -12,9 +12,9 @@ if config.task == 'foraging':
     env = ForagingEnv(config=config)
 
 
-def load(dir, env, config):
+def load(dir1, dir2, env, config):
     td = TD3_loop(env, config)
-    td.load(dir)
+    td.load(dir1, dir2)
     return td
 
 

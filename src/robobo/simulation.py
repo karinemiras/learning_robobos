@@ -16,6 +16,7 @@ class SimulationRobobo(Robobo):
 
     def connect(self, address='127.0.0.1', port=19999):
         # vrep.simxFinish(-1)  # just in case, close all opened connections
+
         self._clientID = vrep.simxStart(address, port, True, True, 5000, 5)  # Connect to V-REP
         if self._clientID >= 0: #  and clientID_0 != -1:
             self.wait_for_ping()
@@ -24,6 +25,9 @@ class SimulationRobobo(Robobo):
             print('Failed connecting to remote API server')
             return False
             #raise VREPCommunicationError('Failed connecting to remote API server')
+
+        # real time simulation
+        vrep.simxSetBooleanParameter(self._clientID, 25, True, vrep.simx_opmode_oneshot)
 
         get_handles_timeout = 120.0
 
@@ -170,7 +174,9 @@ class SimulationRobobo(Robobo):
 
         # busy waiting
         start_time = self.get_sim_time()
-        while self.get_sim_time() - start_time < duration:
+        now = 0
+        while now - start_time < duration:
+            now = self.get_sim_time()
             pass
         
         # Stop to move the wheels motor. Angular velocity.
@@ -296,6 +302,8 @@ class SimulationRobobo(Robobo):
             vrep.simxStartSimulation(self._clientID, vrep.simx_opmode_blocking)
         )
         self.wait_for_ping()
+        # 2*2 times faster than real time simulation
+        vrep.simxSetIntegerParameter(self._clientID, 36, 2, vrep.simx_opmode_oneshot)
 
     def stop_world(self):
         vrep.unwrap_vrep(

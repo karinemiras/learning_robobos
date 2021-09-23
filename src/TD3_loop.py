@@ -3,8 +3,10 @@ import numpy as np
 from TD3.utils import ReplayBuffer
 from TD3.TD3 import TD3
 import os
+import pickle
 os.environ["KMP_WARNINGS"] = "FALSE"
 os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+
 
 class TD3_loop:
 
@@ -27,6 +29,7 @@ class TD3_loop:
 		self.policy_freq = 2 				 # Frequency of delayed policy updates
 
 		self.init_policy()
+		self.replay_buffer = ReplayBuffer(self.state_dim, self.action_dim)
 
 	def init_policy(self):
 		self.state_dim = self.env.observation_space.shape[0]
@@ -49,10 +52,6 @@ class TD3_loop:
 
 		self.max_timesteps = total_timesteps
 
-		# if human mode off, buffer never gets cleaned
-		if self.config.human_interference == 0:
-			replay_buffer = ReplayBuffer(self.state_dim, self.action_dim)
-
 		state, done = self.env.reset(), False
 		episode_timesteps = 0
 
@@ -61,7 +60,7 @@ class TD3_loop:
 			# if human mode on, cleans buffer at every beginning of episode
 			if self.config.human_interference == 1:
 				if episode_timesteps == 0:
-					replay_buffer = ReplayBuffer(self.state_dim, self.action_dim)
+					self.replay_buffer = ReplayBuffer(self.state_dim, self.action_dim)
 
 			episode_timesteps += 1
 
@@ -93,23 +92,30 @@ class TD3_loop:
 			callback._on_step()
 
 			# Store data in replay buffer
-			replay_buffer.add(state, action, next_state, reward, done_bool)
+			self.replay_buffer.add(state, action, next_state, reward, done_bool)
 
 			state = next_state
 
 			# Train agent after collecting sufficient data
 			if t >= self.start_timesteps:
-				self.policy.train(replay_buffer, self.batch_size)
+				self.policy.train(self.replay_buffer, self.batch_size)
 
 			if done:
 				# Reset environment
 				state, done = self.env.reset(), False
 				episode_timesteps = 0
 
-	def save(self, dir):
-		self.policy.save(dir)
+	def save(self, dir1, dir2):
+		self.policy.save(dir1)
 
-	def load(self, dir):
-		self.policy.load(dir)
+		f = open(dir2, 'wb')
+		pickle.dump(self.replay_buffer, f)
+
+	def load(self, dir1, dir2):
+		self.policy.load(dir1)
+
+		if dir2 != '':
+			f = open(dir2, 'rb')
+			self.replay_buffer = pickle.load(f)
 
 

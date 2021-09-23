@@ -126,7 +126,7 @@ class ExperimentManager:
 
         dir = f'experiments/{self.config.experiment_name}'
 
-        self.model.save(f'{dir}/model_checkpoint_{self.current_checkpoint}')
+        self.model.save(f'{dir}/model_checkpoint_{self.current_checkpoint}', f'{dir}/buffer_checkpoint_{self.current_checkpoint}')
 
         f = open(f'{dir}/status_checkpoint_{self.current_checkpoint}.pkl', 'wb')
         pickle.dump([
@@ -159,14 +159,13 @@ class ExperimentManager:
                     f = open(f'{dir}/status_checkpoint_{checkpoints[attempts]}.pkl', 'rb')
                     env_data = pickle.load(f)
 
-                    # TODO: save self.human_steps from the beginning
-                    if len(env_data) > 4:
-                        self.results_episodes, self.results_episodes_validation, self.current_checkpoint, self.current_episode, self.human_steps = env_data
-                    else:
-                        self.results_episodes, self.results_episodes_validation, self.current_checkpoint, self.current_episode = env_data
+                    self.results_episodes, self.results_episodes_validation, self.current_checkpoint, self.current_episode, self.human_steps = env_data
 
                     env2 = self.env
-                    self.model = self.load(f'{dir}/model_checkpoint_{checkpoints[attempts]}', env=env2, config=self.config)
+                    self.model = self.load(f'{dir}/model_checkpoint_{checkpoints[attempts]}',
+                                           f'{dir}/buffer_checkpoint_{self.current_checkpoint}',
+                                           env=env2,
+                                           config=self.config)
 
                     attempts = -1
                     self.log.write(f'RECOVERED checkpoint {checkpoints[attempts]}')
@@ -196,8 +195,11 @@ class ExperimentManager:
     def load_stage(self, checkpoint):
         dir = f'experiments/{self.config.experiment_name}'
         f = open(f'{dir}/status_checkpoint_{checkpoint}.pkl', 'rb')
-        self.results_episodes, self.results_episodes_validation, self.current_checkpoint, self.current_episode = pickle.load(f)
+        self.results_episodes, self.results_episodes_validation, self.current_checkpoint, self.current_episode, self.human_steps = pickle.load(f)
         env2 = self.env
-        self.model = self.load(f'{dir}/model_checkpoint_{checkpoint}', env=env2, config=self.config)
+        self.model = self.load(f'{dir}/model_checkpoint_{checkpoint}',
+                               '',
+                               env=env2,
+                               config=self.config)
 
 

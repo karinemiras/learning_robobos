@@ -52,7 +52,7 @@ experiments = ['foraging-TD']
 
 
 for experiment in experiments:
-    cd = PlotData(experiment, runs=range(1, 1+1))
+    cd = PlotData(experiment, runs=range(1, 20+1))
     cd.replicate()
 
 
