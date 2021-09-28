@@ -43,25 +43,25 @@ class Config:
 
         self.parser.add_argument(
             '--episode-train-steps',
-            default=200, type=int,
+            default=400, type=int,
             help="Maximum number of steps of an episode while training."
         )
 
         self.parser.add_argument(
             '--episode-validation-steps',
-            default=200, type=int,
+            default=400, type=int,
             help="Maximum duration of an episode while validating (during training)."
         )
 
         self.parser.add_argument(
             '--episode-test-steps',
-            default=200, type=int,
+            default=400, type=int,
             help="Maximum duration of an episode while making final tests."
         )
 
         self.parser.add_argument(
             '--validation-freq',
-            default=1000, type=int,
+            default=4000, type=int,
             help="After how many steps the policy should be validated."
         )
 
@@ -85,13 +85,13 @@ class Config:
 
         self.parser.add_argument(
             '--training-timesteps',
-            default=35000, type=int,
+            default=60000, type=int,
             help="Number of total time steps in the training."
         )
 
         self.parser.add_argument(
             '--checkpoint-timesteps',
-            default=1000, type=int,
+            default=4000, type=int,
             help="After how many time steps sabes checkpoint."
         )
 

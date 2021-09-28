@@ -58,7 +58,7 @@ tests_type = 'bests'
 #tests_type = 'choice'
 
 experiments = ['foraging-TD_11']
-
+experiments = ['foraging-TD_3']
 
 # runs=20
 # for i in range(1, runs+1):

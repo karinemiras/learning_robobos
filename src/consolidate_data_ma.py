@@ -65,7 +65,7 @@ class ConsolidateData:
         while attempts >= 0:
             try:
                 f = open(f'{dir}/status_checkpoint_{checkpoints[attempts]}.pkl', 'rb')
-                results_episodes, results_episodes_validation, dummy1, dummy2 = pickle.load(f)
+                results_episodes, results_episodes_validation, dummy1, dummy2, dummy3 = pickle.load(f)
                 return results_episodes
             except:
                 print(f'ERROR: Could not recover checkpoint {checkpoints[attempts]} {traceback.format_exc()}')
@@ -77,7 +77,7 @@ experiments = ["foraging-TD"]
 for experiment in experiments:
     cd = ConsolidateData(
             experiment=experiment,
-            runs=range(1, 20+1) 
+            runs=range(1, 20+1)
     )
 
     cd.run()

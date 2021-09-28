@@ -18,7 +18,7 @@ class PlotData:
 
         self.dir = 'experiments/anal/'
         self.measures = ['steps', 'total_success', 'total_hurt', 'rewards']
-        self.measures_limits = [[20, 230],  [-0.5, 9.5], [-10, 1400], [-10, 200]]
+        self.measures_limits = [[20, 450],  [-0.5, 9.5], [-10, 1400], [-10, 200]]
         self.metrics = ['max', 'mean', 'min', 'median']
         self.clrs = ['#FF3333', '#006600']
 
@@ -62,7 +62,7 @@ class PlotData:
                     ax.legend()
 
                     if measure.find('total_success') != -1:
-                        plt.plot([1, 35], [7, 7], 'k--', linewidth=1.5)
+                        plt.plot([1, 15], [7, 7], 'k--', linewidth=1.5)
 
                 font = {'font.size': 20}
                 plt.rcParams.update(font)
@@ -92,7 +92,7 @@ class PlotData:
                 data_filtered = pd.concat([data_filtered, exp_run], axis=0)
 
         pprint.pprint(data_filtered)
-        data_filtered.to_csv(f'{self.dir}anal/best_checkpoints.csv')
+        data_filtered.to_csv(f'{self.dir}best_checkpoints.csv')
 
         for idx_measure, measure in enumerate(self.measures):
             sb.set(rc={"axes.titlesize": 23, "axes.labelsize": 23, 'ytick.labelsize': 21, 'xtick.labelsize': 21})

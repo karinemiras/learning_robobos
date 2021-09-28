@@ -30,7 +30,7 @@ class ForagingEnv(gym.Env):
         self.config = config
 
         self.max_food = 7
-        self.food_reward = 10
+        self.food_reward = 100#10
 
         # init
         self.done = False
@@ -103,6 +103,7 @@ class ForagingEnv(gym.Env):
 
     def step(self, actions):
         info = {}
+        #print(self.current_step)
         # fetches and transforms actions
         left, right, human_actions = self.action_selection.select(actions)
 
