@@ -97,7 +97,7 @@ class ExperimentManager:
 
         if self.log_food_print:
             file = open(f'experiments/final_tests.txt', 'a')
-            file.write(f'{self.config.experiment_name}\t{self.config.sim_hard}\t{self.env.total_success}\t{self.env.total_hurt}\t {self.env.current_step}\n')
+            file.write(f'{self.config.experiment_name}\t{self.config.sim_hard}\t{self.config.pos}\t{self.env.total_success}\t{self.env.total_hurt}\t {self.env.current_step}\n')
             file.close()
 
     def run(self):
@@ -188,8 +188,6 @@ class ExperimentManager:
             while not done:
                 action = self.model.policy.select_action(obs)
                 obs, reward, done, _ = self.env.step(action)
-        self.env.robot.stop_world()
-
 
     #TODO: reuse this function in preparestage later
     def load_stage(self, checkpoint):

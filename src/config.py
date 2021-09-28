@@ -20,6 +20,12 @@ class Config:
         )
 
         self.parser.add_argument(
+            '--real-time',
+            default=1, type=int,
+            help="Runs simulation in real timeX4. 1=yes and 0=no, meaning runs as fast as possible."
+        )
+
+        self.parser.add_argument(
             '--human-interference',
             default=0, type=int,
             help="If human interference is enabled, using joystick. 0=False and 1=True"
@@ -42,32 +48,38 @@ class Config:
         # experimental setup
 
         self.parser.add_argument(
+            '--pos',
+            default=-1, type=int,
+            help="Initial position of the robot. 0-6, and -1 means random."
+        )
+
+        self.parser.add_argument(
             '--episode-train-steps',
-            default=400, type=int,
+            default=200, type=int, #400
             help="Maximum number of steps of an episode while training."
         )
 
         self.parser.add_argument(
             '--episode-validation-steps',
-            default=400, type=int,
+            default=200, type=int, #400
             help="Maximum duration of an episode while validating (during training)."
         )
 
         self.parser.add_argument(
             '--episode-test-steps',
-            default=400, type=int,
+            default=200, type=int, #400
             help="Maximum duration of an episode while making final tests."
         )
 
         self.parser.add_argument(
             '--validation-freq',
-            default=4000, type=int,
+            default=1000, type=int, #4000
             help="After how many steps the policy should be validated."
         )
 
         self.parser.add_argument(
             '--number-validations',
-            default=10, type=int,
+            default=7, type=int,
             help="Number of episodes to repeat the validation of the policy during training."
         )
 
@@ -79,19 +91,19 @@ class Config:
 
         self.parser.add_argument(
             '--number-tests',
-            default=10, type=int,
+            default=1, type=int,
             help="Number of episodes to repeat the test of the policy after training."
         )
 
         self.parser.add_argument(
             '--training-timesteps',
-            default=60000, type=int,
+            default=35000, type=int, #60000
             help="Number of total time steps in the training."
         )
 
         self.parser.add_argument(
             '--checkpoint-timesteps',
-            default=4000, type=int,
+            default=1000, type=int, #4000
             help="After how many time steps sabes checkpoint."
         )
 

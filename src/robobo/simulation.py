@@ -10,8 +10,9 @@ class VREPCommunicationError(Exception):
     pass
 
 class SimulationRobobo(Robobo):
-    def __init__(self, number=""):
+    def __init__(self, config, number=""):
         self._clientID = None
+        self.config = config
         self._value_number = number
 
     def connect(self, address='127.0.0.1', port=19999):
@@ -27,7 +28,8 @@ class SimulationRobobo(Robobo):
             #raise VREPCommunicationError('Failed connecting to remote API server')
 
         # real time simulation
-        vrep.simxSetBooleanParameter(self._clientID, 25, True, vrep.simx_opmode_oneshot)
+        if self.config.real_time == 1:
+            vrep.simxSetBooleanParameter(self._clientID, 25, True, vrep.simx_opmode_oneshot)
 
         get_handles_timeout = 120.0
 
@@ -302,8 +304,10 @@ class SimulationRobobo(Robobo):
             vrep.simxStartSimulation(self._clientID, vrep.simx_opmode_blocking)
         )
         self.wait_for_ping()
-        # 2*2 times faster than real time simulation
-        vrep.simxSetIntegerParameter(self._clientID, 36, 2, vrep.simx_opmode_oneshot)
+
+        if self.config.real_time == 1:
+            # 2*2 times faster than real time simulation
+            vrep.simxSetIntegerParameter(self._clientID, 36, 2, vrep.simx_opmode_oneshot)
 
     def stop_world(self):
         vrep.unwrap_vrep(
@@ -366,7 +370,10 @@ class SimulationRobobo(Robobo):
                 [1.5724095106124878, 1.2, 1.5723344087600708]
             ]
 
-            pos = random.randint(0, len(positions) - 1)
+            if self.config.pos == -1:
+                pos = random.randint(0, len(positions) - 1)
+            else:
+                pos = self.config.pos
 
             vrep.simxSetObjectOrientation(self._clientID, self._Robobo, -1,
                                           orietations[pos],

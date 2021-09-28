@@ -30,7 +30,7 @@ class ForagingEnv(gym.Env):
         self.config = config
 
         self.max_food = 7
-        self.food_reward = 100#10
+        self.food_reward = 100
 
         # init
         self.done = False
@@ -52,14 +52,13 @@ class ForagingEnv(gym.Env):
         self.robot = False
         while not self.robot:
             if self.config.sim_hard == 'sim':
-                self.robot = robobo.SimulationRobobo().connect(address=self.config.robot_ip, port=self.config.robot_port)
+                self.robot = robobo.SimulationRobobo(config=self.config).connect(address=self.config.robot_ip, port=self.config.robot_port)
             else:
                 self.robot = robobo.HardwareRobobo(camera=True).connect(address=self.config.robot_ip_hard)
 
             time.sleep(1)
 
     def reset(self):
-
         """
         Important: the observation must be a numpy array
         :return: (np.array)
@@ -103,11 +102,10 @@ class ForagingEnv(gym.Env):
 
     def step(self, actions):
         info = {}
-        #print(self.current_step)
         # fetches and transforms actions
         left, right, human_actions = self.action_selection.select(actions)
 
-        self.robot.move(left, right, 200)
+        self.robot.move(left, right, 400) #200
 
         # gets states
         sensors = self.get_infrared()
