@@ -185,12 +185,19 @@ class ExperimentManager:
 
         print('> Testing ', experiment, run)
         for i in range(1, self.config.number_tests+1):
-            print('  Test', i)
-            obs = self.env.reset()
-            done = False
-            while not done:
-                action = self.model.policy.select_action(obs)
-                obs, reward, done, _ = self.env.step(action)
+            finished_test = False
+
+            while not finished_test:
+                try:
+                    print('  Test', i)
+                    obs = self.env.reset()
+                    done = False
+                    while not done:
+                        action = self.model.policy.select_action(obs)
+                        obs, reward, done, _ = self.env.step(action)
+                    finished_test = True
+                except Exception as error:
+                    print('ERROR: {}'.format(traceback.format_exc()))
 
     #TODO: reuse this function in preparestage later
     def load_stage(self, checkpoint):
