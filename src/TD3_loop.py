@@ -114,7 +114,7 @@ class TD3_loop:
 	def load(self, dir1, dir2):
 		self.policy.load(dir1)
 
-		if dir2 != '':
+		if dir2 != '' and os.path.isfile(dir2):
 			f = open(dir2, 'rb')
 			self.replay_buffer = pickle.load(f)
 

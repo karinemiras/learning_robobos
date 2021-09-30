@@ -40,9 +40,7 @@ class PlotData:
                         file_name = file.split('/')[2]
                         shutil.copyfile(f'{file}', f'{self.dir}{experiment_name_new}/{file_name}')
 
-            task = experiment.split('-')[0]
-            alg = experiment.split('-')[1]
-            command = f'python3 src/human_experiments.py --experiment-name {experiment_name_new} --task {task} --algorithm {alg}  --robot-port {self.robot_port}' \
+            command = f'python3 src/human_experiments.py --experiment-name {experiment_name_new}  --robot-port {self.robot_port}' \
                 f' --training-timesteps {self.max_steps} --human-interference 1\n'
             out_file.write(command)
         out_file.close()
@@ -52,7 +50,7 @@ experiments = ['foraging-TD']
 
 
 for experiment in experiments:
-    cd = PlotData(experiment, runs=range(1, 20+1))
+    cd = PlotData(experiment, runs=range(1, 21+1))
     cd.replicate()
 
 

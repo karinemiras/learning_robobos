@@ -159,7 +159,7 @@ class ExperimentManager:
                     f = open(f'{dir}/status_checkpoint_{checkpoints[attempts]}.pkl', 'rb')
                     env_data = pickle.load(f)
 
-                    if len(env_data)>4:
+                    if len(env_data) > 4:
                         self.results_episodes, self.results_episodes_validation, self.current_checkpoint, self.current_episode, self.human_steps = env_data
                     else:
                         self.results_episodes, self.results_episodes_validation, self.current_checkpoint, self.current_episode  = env_data
