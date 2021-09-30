@@ -62,7 +62,7 @@ class PlotData:
                     ax.legend()
 
                     if measure.find('total_success') != -1:
-                        plt.plot([1, 15], [7, 7], 'k--', linewidth=1.5)
+                        plt.plot([1, 35], [7, 7], 'k--', linewidth=1.5)
 
                 font = {'font.size': 20}
                 plt.rcParams.update(font)
@@ -121,7 +121,7 @@ analysis = {
 }
 
 
-runs = range(1, 20+1)
+runs = range(1, 21+1)
 for anal in analysis:
     cd = PlotData(anal, analysis[anal], runs=runs )
     cd.lines()

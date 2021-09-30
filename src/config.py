@@ -21,7 +21,7 @@ class Config:
 
         self.parser.add_argument(
             '--real-time',
-            default=1, type=int,
+            default=0, type=int,
             help="Runs simulation in real timeX4. 1=yes and 0=no, meaning runs as fast as possible."
         )
 
@@ -55,25 +55,25 @@ class Config:
 
         self.parser.add_argument(
             '--episode-train-steps',
-            default=200, type=int, #400
+            default=200, type=int,
             help="Maximum number of steps of an episode while training."
         )
 
         self.parser.add_argument(
             '--episode-validation-steps',
-            default=200, type=int, #400
+            default=200, type=int,
             help="Maximum duration of an episode while validating (during training)."
         )
 
         self.parser.add_argument(
             '--episode-test-steps',
-            default=200, type=int, #400
+            default=200, type=int,
             help="Maximum duration of an episode while making final tests."
         )
 
         self.parser.add_argument(
             '--validation-freq',
-            default=1000, type=int, #4000
+            default=1000, type=int,
             help="After how many steps the policy should be validated."
         )
 
@@ -97,13 +97,13 @@ class Config:
 
         self.parser.add_argument(
             '--training-timesteps',
-            default=35000, type=int, #60000
+            default=35000, type=int,
             help="Number of total time steps in the training."
         )
 
         self.parser.add_argument(
             '--checkpoint-timesteps',
-            default=1000, type=int, #4000
+            default=1000, type=int,
             help="After how many time steps sabes checkpoint."
         )
 

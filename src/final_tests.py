@@ -67,7 +67,6 @@ if tests_type == 'choice':
 
 else:
     exp = config.experiment_name
-
     aux_str = exp.split('_')
     experiment = aux_str[0]
     run = aux_str[1]

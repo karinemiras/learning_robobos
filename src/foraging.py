@@ -30,7 +30,7 @@ class ForagingEnv(gym.Env):
         self.config = config
 
         self.max_food = 7
-        self.food_reward = 100
+        self.food_reward = 10
 
         # init
         self.done = False
@@ -105,7 +105,7 @@ class ForagingEnv(gym.Env):
         # fetches and transforms actions
         left, right, human_actions = self.action_selection.select(actions)
 
-        self.robot.move(left, right, 400) #200
+        self.robot.move(left, right, 250) #400
 
         # gets states
         sensors = self.get_infrared()
@@ -174,16 +174,24 @@ class ForagingEnv(gym.Env):
 
         irs = np.asarray(self.robot.read_irs()).astype(np.float32)
 
-        for idx, val in np.ndenumerate(irs):
-            if self.config.sim_hard == 'hard':
+        # for idx, val in np.ndenumerate(irs):
+        #     if self.config.sim_hard == 'hard':
+        #         # 100 is the noise of ghost signals
+        #         if irs[idx] >= 100:
+        #             irs[idx] = 1/math.log(irs[idx], 2)
+        #         else:
+        #             irs[idx] = 1
+        #     else:
+        #         if irs[idx] == 0:
+        #             irs[idx] = 1
+
+        if self.config.sim_hard == 'hard':
+            for idx, val in np.ndenumerate(irs):
                 # 100 is the noise of ghost signals
                 if irs[idx] >= 100:
-                    irs[idx] = 1/math.log(irs[idx], 2)
+                    irs[idx] = 1 / math.log(irs[idx], 2)
                 else:
-                    irs[idx] = 1
-            else:
-                if irs[idx] == 0:
-                    irs[idx] = 1
+                    irs[idx] = 0
 
         return irs
 

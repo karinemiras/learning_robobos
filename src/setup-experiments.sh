@@ -7,9 +7,7 @@ experiments=("foraging-TD")
 
 runs=21
 checkpoints=35
-#checkpoints=15
-#num_terminals=20
-num_terminals=10
+num_terminals=20
 start_port=20000
 
 

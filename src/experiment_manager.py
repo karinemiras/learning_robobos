@@ -159,7 +159,10 @@ class ExperimentManager:
                     f = open(f'{dir}/status_checkpoint_{checkpoints[attempts]}.pkl', 'rb')
                     env_data = pickle.load(f)
 
-                    self.results_episodes, self.results_episodes_validation, self.current_checkpoint, self.current_episode, self.human_steps = env_data
+                    if len(env_data)>4:
+                        self.results_episodes, self.results_episodes_validation, self.current_checkpoint, self.current_episode, self.human_steps = env_data
+                    else:
+                        self.results_episodes, self.results_episodes_validation, self.current_checkpoint, self.current_episode  = env_data
 
                     env2 = self.env
                     self.model = self.load(f'{dir}/model_checkpoint_{checkpoints[attempts]}',
@@ -193,7 +196,11 @@ class ExperimentManager:
     def load_stage(self, checkpoint):
         dir = f'experiments/{self.config.experiment_name}'
         f = open(f'{dir}/status_checkpoint_{checkpoint}.pkl', 'rb')
-        self.results_episodes, self.results_episodes_validation, self.current_checkpoint, self.current_episode, self.human_steps = pickle.load(f)
+        env_data = pickle.load(f)
+        if len(env_data) > 4:
+            self.results_episodes, self.results_episodes_validation, self.current_checkpoint, self.current_episode, self.human_steps = env_data
+        else:
+            self.results_episodes, self.results_episodes_validation, self.current_checkpoint, self.current_episode = env_data
         env2 = self.env
         self.model = self.load(f'{dir}/model_checkpoint_{checkpoint}',
                                '',

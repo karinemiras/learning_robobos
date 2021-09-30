@@ -113,7 +113,10 @@ class ConsolidateData:
             try:
                 f = open(f'{dir}/status_checkpoint_{checkpoints[attempts]}.pkl', 'rb')
                 env_data = pickle.load(f)
-                results_episodes, results_episodes_validation, dummy1, dummy2, human_steps = env_data
+                if len(env_data) > 4:
+                    results_episodes, results_episodes_validation, dummy1, dummy2, human_steps = env_data
+                else:
+                    results_episodes, results_episodes_validation, dummy1, dummy2 = env_data
 
                 return results_episodes_validation
             except:
@@ -132,7 +135,7 @@ experiments = ["foraging-TD"]
 for experiment in experiments:
     cd = ConsolidateData(
             experiment=experiment,
-            runs=range(1, 20    +1)
+            runs=range(1, 21+1)
     )
 
     cd.run()
