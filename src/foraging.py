@@ -109,7 +109,7 @@ class ForagingEnv(gym.Env):
 
         # gets states
         sensors = self.get_infrared()
-        prop_green_points, color_y, color_x, prop_gray_points, color_y_gray, color_x_gray = self.detect_color()
+        prop_green_points, color_y, color_x, prop_gray_points, color_y_gray, color_x_gray = self.detect_color(human_actions)
 
         if self.config.sim_hard == 'sim':
             collected_food, aux = self.robot.collected_food()
@@ -192,11 +192,13 @@ class ForagingEnv(gym.Env):
 
         return irs
 
-    def detect_color(self):
+    def detect_color(self, human_actions=[]):
         image = self.robot.get_image_front()
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
         if self.config.human_interference == 1 and self.config.sim_hard == 'sim':
+            if len(human_actions)>0:
+                image = cv2.copyMakeBorder(image, 2, 2, 2, 2, cv2.BORDER_CONSTANT, value=[0,0,255])
             cv2.imshow('robot view', image)
             cv2.waitKey(1)
 

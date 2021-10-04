@@ -23,11 +23,12 @@ class CustomCallback:
             print('> Validating...')
 
             for i in range(1, self.experiment_manager.config.number_validations+1):
-                print(' validation', i)
                 self.experiment_manager.mode_train_validation = 'validation'
 
                 if self.experiment_manager.config.human_interference == 1:
                     self.experiment_manager.config.pos = i-1
+
+                print(' validation', i, 'pos', self.experiment_manager.config.pos)
 
                 obs = self.experiment_manager.env.reset()
                 done = False
@@ -36,6 +37,8 @@ class CustomCallback:
                     obs, reward, done, _ = self.experiment_manager.env.step(action)
 
                 self.experiment_manager.mode_train_validation = 'train'
+
+            self.experiment_manager.config.pos = -1
 
             print(' ')
 

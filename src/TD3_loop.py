@@ -19,13 +19,12 @@ class TD3_loop:
 		self.start_timesteps = 0   			 # Time steps initial random policy is used
 
 		if self.config.human_interference == 1:
-			self.expl_noise = 0
 			self.batch_size = self.config.episode_train_steps
 		else:
-			self.expl_noise = 0.1             # Std of Gaussian exploration noise
 			self.batch_size = 128             # Batch size for both actor and critic
 
-		self.policy_noise = 0.2				 # Noise added to target policy during critic update
+		self.expl_noise = 0.1  # Std of Gaussian exploration noise
+		self.policy_noise = 0.2  # Noise added to target policy during critic update
 		self.noise_clip = 0.5  				 # Range to clip target policy noise
 		self.policy_freq = 2 				 # Frequency of delayed policy updates
 
@@ -77,15 +76,17 @@ class TD3_loop:
 			# Perform action
 			next_state, reward, done, info = self.env.step(action)
 
-			# if human interfered, uses its actions
-			if len(info) != 0:
-				action = info
+			if self.config.human_interference == 1:
 				human_reward_base = 1
-				# if human action is successful, punishes robot potential action according to magnitude of success
 				if reward > 0:
 					reward = human_reward_base + reward
 				else:
-					reward = human_reward_base
+					if len(info) != 0:
+						reward = human_reward_base
+
+			# if human interfered, uses its actions
+			if len(info) != 0:
+				action = info
 
 			done_bool = float(done) if episode_timesteps < self.env.episode_length else 0
 
