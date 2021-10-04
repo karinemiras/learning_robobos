@@ -4,7 +4,6 @@ import argparse
 class Config:
 
     def __init__(self):
-
         self.parser = argparse.ArgumentParser()
 
         self.parser.add_argument(
@@ -30,12 +29,12 @@ class Config:
             default=0, type=int,
             help="If human interference is enabled, using joystick. 0=False and 1=True"
         )
-        
+
         # simulation
 
         self.parser.add_argument(
             '--robot-ip',
-            default='10.15.3.187', type=str,
+            default='10.15.3.114', type=str,
             help="Ip of the robot in simulation."
         )
 
@@ -99,6 +98,12 @@ class Config:
             '--training-timesteps',
             default=35000, type=int,
             help="Number of total time steps in the training."
+        )
+
+        self.parser.add_argument(
+            '--human-timesteps',
+            default=6000, type=int,
+            help="Number of total time steps used in the human training."
         )
 
         self.parser.add_argument(

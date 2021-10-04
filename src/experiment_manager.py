@@ -25,6 +25,10 @@ class CustomCallback:
             for i in range(1, self.experiment_manager.config.number_validations+1):
                 print(' validation', i)
                 self.experiment_manager.mode_train_validation = 'validation'
+
+                if self.experiment_manager.config.human_interference == 1:
+                    self.experiment_manager.config.pos = i-1
+
                 obs = self.experiment_manager.env.reset()
                 done = False
                 while not done:
@@ -111,7 +115,11 @@ class ExperimentManager:
 
         try:
 
-            remaining_training_timesteps = self.config.training_timesteps-len(self.results_episodes)
+            if self.config.human_interference == 1:
+                remaining_training_timesteps = self.config.human_timesteps
+            else:
+                remaining_training_timesteps = self.config.training_timesteps-len(self.results_episodes)
+
             self.model.learn(total_timesteps=remaining_training_timesteps,
                              log_interval=5, #in episodes
                              callback=callback)
@@ -213,5 +221,4 @@ class ExperimentManager:
                                '',
                                env=env2,
                                config=self.config)
-
 

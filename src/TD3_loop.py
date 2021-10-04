@@ -17,12 +17,13 @@ class TD3_loop:
 
 		self.max_timesteps = 0  # Max time steps to run environment
 		self.start_timesteps = 0   			 # Time steps initial random policy is used
-		self.expl_noise = 0.1     			 # Std of Gaussian exploration noise
 
 		if self.config.human_interference == 1:
-			self.batch_size = self.config.episode_train_steps   # Batch size for both actor and critic
+			self.expl_noise = 0
+			self.batch_size = self.config.episode_train_steps
 		else:
-			self.batch_size = 128
+			self.expl_noise = 0.1             # Std of Gaussian exploration noise
+			self.batch_size = 128             # Batch size for both actor and critic
 
 		self.policy_noise = 0.2				 # Noise added to target policy during critic update
 		self.noise_clip = 0.5  				 # Range to clip target policy noise
@@ -111,11 +112,11 @@ class TD3_loop:
 		f = open(dir2, 'wb')
 		pickle.dump(self.replay_buffer, f)
 
+
 	def load(self, dir1, dir2):
 		self.policy.load(dir1)
 
 		if dir2 != '' and os.path.isfile(dir2):
 			f = open(dir2, 'rb')
 			self.replay_buffer = pickle.load(f)
-
 

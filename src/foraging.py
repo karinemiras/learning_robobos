@@ -157,10 +157,7 @@ class ForagingEnv(gym.Env):
 
         info = human_actions
         if len(human_actions) > 0:
-            took_action = 1
-        else:
-            took_action = 0
-        self.exp_manager.human_steps.append([self.exp_manager.current_episode, took_action])
+            self.exp_manager.human_steps.append(self.exp_manager.current_episode)
 
         return sensors, reward, self.done, info
 
@@ -250,4 +247,3 @@ class ForagingEnv(gym.Env):
             avg_x_gray = 0
 
         return prop_green_points, avg_y, avg_x, prop_gray_points, avg_y_gray, avg_x_gray
-

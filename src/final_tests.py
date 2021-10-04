@@ -36,7 +36,7 @@ def extract_info(experiment):
     if algorithm == 'TD':
         load = load_td
 
-    if task == 'foraging':
+    if 'foraging' in task:
         env = ForagingEnv(config=config)
 
     return load, env
@@ -45,7 +45,7 @@ def extract_info(experiment):
 ###
 config = Config()
 config = config.parser.parse_args()
-config.robot_port = 20020 #19997
+config.robot_port = 19997
 config.train_or_test = 'test'
 
 config.sim_hard = 'sim'
@@ -91,5 +91,4 @@ else:
         print('checkpoint', checkpoint)
 
         run_test(log_food_print, experiment, run, load, env, checkpoint)
-
 
