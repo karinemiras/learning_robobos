@@ -102,7 +102,7 @@ class Config:
 
         self.parser.add_argument(
             '--human-timesteps',
-            default=6000, type=int,
+            default=1000, type=int,
             help="Number of total time steps used in the human training."
         )
 

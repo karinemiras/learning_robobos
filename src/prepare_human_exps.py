@@ -40,7 +40,7 @@ class PlotData:
                         shutil.copyfile(f'{file}', f'{self.dir}{experiment_name_new}/{file_name}')
 
             command = f'python3 src/human_experiments.py --experiment-name {experiment_name_new}  --robot-port {self.robot_port}' \
-                f' --human-interference 1 --validation-freq 2000 --checkpoint-timesteps 2000 \n'
+                f' --human-interference 1  \n'
             out_file.write(command)
         out_file.close()
 

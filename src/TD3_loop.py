@@ -4,6 +4,7 @@ from TD3.utils import ReplayBuffer
 from TD3.TD3 import TD3
 import os
 import pickle
+import pprint
 os.environ["KMP_WARNINGS"] = "FALSE"
 os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
@@ -14,22 +15,24 @@ class TD3_loop:
 		self.config = config
 		self.env = environment
 		self.policy = None
-
-		self.max_timesteps = 0  # Max time steps to run environment
-		self.start_timesteps = 0   			 # Time steps initial random policy is used
+		self.max_timesteps = 0  			 # Max time steps to run environment
 
 		if self.config.human_interference == 1:
+			self.lr = 3e-4
 			self.batch_size = self.config.episode_train_steps
 		else:
-			self.batch_size = 128             # Batch size for both actor and critic
+			self.lr = 3e-4 					 # Learning rate
+			self.batch_size = 128  			# Batch size for both actor and critic
 
-		self.expl_noise = 0.1  # Std of Gaussian exploration noise
-		self.policy_noise = 0.2  # Noise added to target policy during critic update
+		self.start_timesteps = 100 			# 		Time steps initial random policy is used
+		self.replay_buffer_init = 0
+		self.expl_noise = 0.1  				 # Std of Gaussian exploration noise
+		self.policy_noise = 0.2  			 # Noise added to target policy during critic update
 		self.noise_clip = 0.5  				 # Range to clip target policy noise
 		self.policy_freq = 2 				 # Frequency of delayed policy updates
 
 		self.init_policy()
-		self.replay_buffer = ReplayBuffer(self.state_dim, self.action_dim)
+		self.replay_buffer = ReplayBuffer(self.state_dim, self.action_dim, self.replay_buffer_init)
 
 	def init_policy(self):
 		self.state_dim = self.env.observation_space.shape[0]
@@ -46,6 +49,7 @@ class TD3_loop:
 		kwargs["policy_noise"] = self.policy_noise * self.max_action
 		kwargs["noise_clip"] = self.noise_clip * self.max_action
 		kwargs["policy_freq"] = self.policy_freq
+		kwargs["lr"] = self.lr
 		self.policy = TD3(**kwargs)
 
 	def learn(self, total_timesteps, log_interval,  callback):
@@ -56,11 +60,6 @@ class TD3_loop:
 		episode_timesteps = 0
 
 		for t in range(int(self.max_timesteps)):
-
-			# if human mode on, cleans buffer at every beginning of episode
-			if self.config.human_interference == 1:
-				if episode_timesteps == 0:
-					self.replay_buffer = ReplayBuffer(self.state_dim, self.action_dim)
 
 			episode_timesteps += 1
 
@@ -77,12 +76,11 @@ class TD3_loop:
 			next_state, reward, done, info = self.env.step(action)
 
 			if self.config.human_interference == 1:
-				human_reward_base = 1
 				if reward > 0:
-					reward = human_reward_base + reward
+					reward = 2 + reward
 				else:
 					if len(info) != 0:
-						reward = human_reward_base
+						reward = 1
 
 			# if human interfered, uses its actions
 			if len(info) != 0:
@@ -95,6 +93,11 @@ class TD3_loop:
 
 			# Store data in replay buffer
 			self.replay_buffer.add(state, action, next_state, reward, done_bool)
+
+			# if human mode on, uses only latest steps from buffer
+			if self.config.human_interference == 1:
+				if  self.replay_buffer.size >= self.batch_size:
+					self.replay_buffer.replay_buffer_init = self.replay_buffer.size - self.batch_size
 
 			state = next_state
 
@@ -120,4 +123,3 @@ class TD3_loop:
 		if dir2 != '' and os.path.isfile(dir2):
 			f = open(dir2, 'rb')
 			self.replay_buffer = pickle.load(f)
-
