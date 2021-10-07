@@ -25,9 +25,7 @@ class CustomCallback:
             for i in range(1, self.experiment_manager.config.number_validations+1):
                 self.experiment_manager.mode_train_validation = 'validation'
 
-                if self.experiment_manager.config.human_interference == 1:
-                    self.experiment_manager.config.pos = i-1
-
+                self.experiment_manager.config.pos = i-1
                 print(' validation', i, 'pos', self.experiment_manager.config.pos)
 
                 obs = self.experiment_manager.env.reset()

@@ -104,7 +104,7 @@ while true
         task=$(cut -d'-' -f1 <<<"${exp}")
         alg=$(cut -d'-' -f2 <<<"${exp}")
 
-        screen -d -m -S exp_${free_screens[$p]}_${to_d} -L -Logfile experiments/"${to_d}.log" nice -n19 python3  src/human_experiments.py --task ${task} --algorithm ${alg} --experiment-name ${to_d} --robot-port ${free_screens[$p]};
+        screen -d -m -S exp_${free_screens[$p]}_${to_d} -L -Logfile experiments/"${to_d}.log" nice -n19 python3  src/human_experiments.py --task ${task} --algorithm ${alg} --experiment-name ${to_d} --robot-port ${free_screens[$p]} --real-time 1;
 
         printf "\n >> (re)starting exp_${free_screens[$p]}_${to_d} \n\n"
         p=$((${p}+1))
