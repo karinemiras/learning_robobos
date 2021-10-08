@@ -14,7 +14,7 @@ for experiment in ${experiments[@]}; do
          do
                for i in $(seq $repetitons )
                 do
-                    echo python3 src/final_tests.py --pos ${p} --experiment-name "${experiment}_${r}"
+                    python3 src/final_tests.py --pos ${p} --experiment-name "${experiment}_${r}"
                 done
          done
      done

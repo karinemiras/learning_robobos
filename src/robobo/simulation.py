@@ -30,6 +30,8 @@ class SimulationRobobo(Robobo):
         # real time simulation
         if self.config.real_time == 1:
             vrep.simxSetBooleanParameter(self._clientID, 25, True, vrep.simx_opmode_oneshot)
+        else:
+            vrep.simxSetBooleanParameter(self._clientID, 25, False, vrep.simx_opmode_oneshot)
 
         get_handles_timeout = 120.0
 
@@ -177,8 +179,10 @@ class SimulationRobobo(Robobo):
         # busy waiting
         start_time = self.get_sim_time()
         now = 0
+        #print('--')
         while now - start_time < duration:
             now = self.get_sim_time()
+            #print( now - start_time )
             pass
         
         # Stop to move the wheels motor. Angular velocity.

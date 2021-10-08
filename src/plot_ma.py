@@ -17,7 +17,7 @@ class PlotData:
 
         self.dir = 'experiments/anal/'
         self.measures = ['steps_ma', 'total_success_ma', 'total_hurt_ma', 'rewards_ma']
-        self.measures_limits = [[20, 210], [-0.5, 8], [-10, 1400], [-5, 200]]
+        self.measures_limits = [[130, 220],  [-0.5, 9.5], [-10, 1400], [0, 800]]
         self.clrs = ['#CC0000', '#006600']
         plt.style.use('classic')
 
@@ -80,7 +80,7 @@ analysis = {
 }
 
 
-runs = range(1, 20+1)
+runs = range(1, 21+1)
 
 for anal in analysis:
     cd = PlotData(anal, analysis[anal], runs)

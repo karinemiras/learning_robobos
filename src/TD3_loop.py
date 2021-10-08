@@ -20,13 +20,14 @@ class TD3_loop:
 		if self.config.human_interference == 1:
 			self.lr = 3e-4
 			self.batch_size = self.config.episode_train_steps
+			self.expl_noise = 0
 		else:
 			self.lr = 3e-4 					 # Learning rate
 			self.batch_size = 128  			# Batch size for both actor and critic
+			self.expl_noise = 0.1  				 # Std of Gaussian exploration noise
 
 		self.start_timesteps = 100 			# 		Time steps initial random policy is used
 		self.replay_buffer_init = 0
-		self.expl_noise = 0.1  				 # Std of Gaussian exploration noise
 		self.policy_noise = 0.2  			 # Noise added to target policy during critic update
 		self.noise_clip = 0.5  				 # Range to clip target policy noise
 		self.policy_freq = 2 				 # Frequency of delayed policy updates
@@ -64,7 +65,7 @@ class TD3_loop:
 			episode_timesteps += 1
 
 			# Select action randomly or according to policy
-			if t < self.start_timesteps:
+			if t < self.start_timesteps and self.config.human_interference != 1:
 				action = self.env.action_space.sample()
 			else:
 				action = (
@@ -76,11 +77,12 @@ class TD3_loop:
 			next_state, reward, done, info = self.env.step(action)
 
 			if self.config.human_interference == 1:
+				human_reward = 0.1
 				if reward > 0:
-					reward = 2 + reward
+					reward = human_reward + reward
 				else:
 					if len(info) != 0:
-						reward = 1
+						reward = human_reward
 
 			# if human interfered, uses its actions
 			if len(info) != 0:
@@ -89,6 +91,7 @@ class TD3_loop:
 			done_bool = float(done) if episode_timesteps < self.env.episode_length else 0
 
 			callback.num_timesteps += 1
+
 			callback._on_step()
 
 			# Store data in replay buffer

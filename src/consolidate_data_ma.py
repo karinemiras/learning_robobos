@@ -77,7 +77,7 @@ experiments = ["foraging-TD"]
 for experiment in experiments:
     cd = ConsolidateData(
             experiment=experiment,
-            runs=range(1, 20+1)
+            runs=range(1, 21+1)
     )
 
     cd.run()

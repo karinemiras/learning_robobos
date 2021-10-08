@@ -3,6 +3,7 @@ import pickle
 import os
 import time
 import traceback
+import vrep
 
 from info_log import Log
 
@@ -22,6 +23,12 @@ class CustomCallback:
         if self.num_timesteps % self.experiment_manager.config.validation_freq == 0:
             print('> Validating...')
 
+            if self.experiment_manager.config.human_interference == 1:
+                self.experiment_manager.env.robot.stop_world()
+                while self.experiment_manager.env.robot.is_simulation_running():
+                    pass
+                vrep.simxSetBooleanParameter(self.experiment_manager.env.robot._clientID, 25, False, vrep.simx_opmode_oneshot)
+
             for i in range(1, self.experiment_manager.config.number_validations+1):
                 self.experiment_manager.mode_train_validation = 'validation'
 
@@ -37,6 +44,13 @@ class CustomCallback:
                 self.experiment_manager.mode_train_validation = 'train'
 
             self.experiment_manager.config.pos = -1
+
+            if self.experiment_manager.config.human_interference == 1:
+                if self.experiment_manager.config.real_time == 1:
+                    self.experiment_manager.env.robot.stop_world()
+                    while self.experiment_manager.env.robot.is_simulation_running():
+                        pass
+                    vrep.simxSetBooleanParameter(self.experiment_manager.env.robot._clientID, 25, True, vrep.simx_opmode_oneshot)
 
             print(' ')
 
@@ -208,6 +222,8 @@ class ExperimentManager:
                 except Exception as error:
                     print('ERROR: {}'.format(traceback.format_exc()))
 
+        self.env.robot.stop_world()
+
     #TODO: reuse this function in preparestage later
     def load_stage(self, checkpoint):
         dir = f'experiments/{self.config.experiment_name}'
@@ -222,4 +238,3 @@ class ExperimentManager:
                                '',
                                env=env2,
                                config=self.config)
-
