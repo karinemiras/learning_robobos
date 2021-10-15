@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-experiments=("foraging-TD" "h_foraging-TD")
+experiments=("h_foraging-TD" "foraging-TD")
 runs=21
 poses=7
 repetitons=3

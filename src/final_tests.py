@@ -45,7 +45,7 @@ def extract_info(experiment):
 ###
 config = Config()
 config = config.parser.parse_args()
-config.robot_port = 20020 #19997
+config.robot_port = 19997
 config.train_or_test = 'test'
 
 config.sim_hard = 'sim'
@@ -66,17 +66,22 @@ if tests_type == 'choice':
     run_test(log_food_print, experiment, run, load, env, checkpoint)
 
 else:
+
     exp = config.experiment_name
-    aux_str = exp.split('_')
-    experiment = aux_str[0]
-    run = aux_str[1]
+    if exp[0] == 'h':
+        aux_str = exp.split('_')
+        experiment = aux_str[0]+'_'+aux_str[1]
+        run = aux_str[2]
+    else:
+        aux_str = exp.split('_')
+        experiment = aux_str[0]
+        run = aux_str[1]
 
     full_data_agreg = pd.read_csv(f'experiments/anal/{experiment}_full_data.csv')
 
     exp_run = full_data_agreg[
         (full_data_agreg['experiment'] == experiment) & (full_data_agreg['run'] == int(run))]
     exp_run = exp_run[(exp_run['total_success'] == exp_run["total_success"].max())]
-    exp_run = exp_run[exp_run['total_hurt'] == exp_run["total_hurt"].min()]
     exp_run = exp_run[exp_run['steps'] == exp_run["steps"].min()]
     exp_run = exp_run[exp_run['checkpoint'] == exp_run["checkpoint"].max()]
 

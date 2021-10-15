@@ -145,6 +145,7 @@ class ForagingEnv(gym.Env):
         reward = food_reward + sight
 
         # if episode is over
+        # TODO: move this print after counter
         if self.current_step == self.episode_length-1 or collected_food == self.max_food:
             self.done = True
             self.exp_manager.food_print()

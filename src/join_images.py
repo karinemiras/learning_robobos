@@ -1,18 +1,18 @@
 from PIL import Image
 import glob
-
+import sys
 
 dir = 'experiments/anal/'
 
-pres =  ['rewards', 'steps', 'total_success', 'total_hurt']
-post = ['ma', 'min', 'mean', 'median', 'max', 'box']
+pres =  ['h_foraging-TD']
+post = range(1, 21+1)
 
 for pre in pres:
     for pos in post:
-        type = pre+'_'+pos
+        type = pre+'_'+str(pos)+'_'
         print(type)
 
-        matching_files = glob.glob(f'{dir}*{type}.*')
+        matching_files = glob.glob(f'{dir}*{type}*.*')
         matching_files.sort()
         images = [Image.open(x) for x in matching_files]
         widths, heights = zip(*(i.size for i in images))
@@ -20,7 +20,7 @@ for pre in pres:
         total_width = sum(widths)
         max_height = max(heights)
 
-        new_im = Image.new('RGB', (total_width, max_height))
+        new_im = Image.new('RGB', (total_width, max_height), 'white')
 
         x_offset = 0
         for im in images:

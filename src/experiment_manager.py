@@ -222,7 +222,8 @@ class ExperimentManager:
                 except Exception as error:
                     print('ERROR: {}'.format(traceback.format_exc()))
 
-        self.env.robot.stop_world()
+        if self.config.sim_hard == 'sim':
+            self.env.robot.stop_world()
 
     #TODO: reuse this function in preparestage later
     def load_stage(self, checkpoint):
