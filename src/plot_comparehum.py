@@ -43,6 +43,7 @@ class PlotData:
                     exps = ['foraging-TD']
                 else:
                     exps = self.experiments
+
                 for idx_experiment, experiment in enumerate(exps):
 
                     tmp = self.full_data_agreg[experiment]
@@ -74,7 +75,7 @@ class PlotData:
 
         data[['experiment', 'run']] = data.experimentrun.str.split("-TD_", expand=True, )
 
-        tests_combinations = [('foraging', 'h_foraging')]
+        tests_combinations = [('h_foraging', 'foraging')]
 
         for run in self.runs:
 
@@ -82,6 +83,7 @@ class PlotData:
             if run not in [1, 2, 3, 6, 7, 8, 9, 10, 11, 13, 14]:
                 exp_run = exp_run[exp_run['experiment'] == 'foraging']
 
+            exp_run = exp_run.sort_values(by=['experiment'])
             pprint.pprint(exp_run)
 
             for idx_measure, measure in enumerate(self.measures):
@@ -118,12 +120,3 @@ for anal in analysis:
     cd = PlotData(anal, analysis[anal], runs=runs )
     cd.lines()
     cd.boxes()
-
-
-
-
-
-
-
-
-
