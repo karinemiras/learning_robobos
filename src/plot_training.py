@@ -78,6 +78,8 @@ class PlotData:
                 exp_run = full_data_agreg[(full_data_agreg['experiment'] == experiment) & (full_data_agreg['run'] == run)]
                 exp_run = exp_run[(exp_run['total_success'] == exp_run["total_success"].max())]
                 exp_run = exp_run[exp_run['steps'] == exp_run["steps"].min()]
+                # TODO: in case of h_, get max checkpoint ONLY among human stages,
+                #  so to avoid having to run manually the cases of non-improvement
                 exp_run = exp_run[exp_run['checkpoint'] == exp_run["checkpoint"].max()]
 
                 data_filtered = pd.concat([data_filtered, exp_run], axis=0)

@@ -28,7 +28,7 @@ class PlotData:
 
         plt.clf()
 
-        data = pd.read_csv(f'{self.dir}final_tests_sim.txt', sep="\t", header=None)
+        data = pd.read_csv(f'{self.dir}final_tests_sim2.txt', sep="\t", header=None)
         data.columns=["experimentrun", "type", "pos", "total_success", "total_hurt", "steps"]
 
         data[['experiment', 'run']] = data.experimentrun.str.split("-TD_", expand=True, )
