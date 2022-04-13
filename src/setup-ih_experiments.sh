@@ -8,7 +8,8 @@
 experiments=("ih_foraging-TD")
 
 runs=(1 2 3 6 7 8 9 10 11 13 14)
-checkpointsruns=(5 1 5 1 2 1 5 5 1 2 2)
+checkpointsruns=(5 1 5 2 2 1 5 5 1 2 2)
+
 num_terminals=11
 start_port=20000
 
@@ -109,7 +110,8 @@ done
 
         steps=$((${checkpointsruns[$p]}*1000))
 
-       echo screen -d -m -S exp_${free_screens[$p]}_${to_d} -L -Logfile experiments/"${to_d}.log" nice -n19 python3  src/human_experiments.py --task foraging --algorithm TD --experiment-name ${to_d} --robot-port ${free_screens[$p]} --human-interference 1 --real-time 1 --human-timesteps ${steps};
+        screen -d -m -S exp_${free_screens[$p]}_${to_d} -L -Logfile experiments/"${to_d}.log" nice -n19 python3  src/human_experiments.py --task foraging --algorithm TD --experiment-name ${to_d} --robot-port ${free_screens[$p]} --human-interference 1 --real-time 1 --human-timesteps ${steps};
+        echo -d -m -S exp_${free_screens[$p]}_${to_d} -L -Logfile experiments/"${to_d}.log" nice -n19 python3  src/human_experiments.py --task foraging --algorithm TD --experiment-name ${to_d} --robot-port ${free_screens[$p]} --human-interference 1 --real-time 1 --human-timesteps ${steps};
 
         printf "\n >> (re)starting exp_${free_screens[$p]}_${to_d} \n\n"
         p=$((${p}+1))

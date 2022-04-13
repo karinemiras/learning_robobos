@@ -1,7 +1,8 @@
 #!/bin/bash
 
 
-num_terminals=20
+#num_terminals=20
+num_terminals=11
 start_port=20000
 
 

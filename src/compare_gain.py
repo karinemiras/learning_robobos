@@ -28,7 +28,7 @@ class PlotData:
 
         plt.clf()
 
-        data = pd.read_csv(f'{self.dir}final_tests_sim2.txt', sep="\t", header=None)
+        data = pd.read_csv(f'{self.dir}final_tests_sim.txt', sep="\t", header=None)
         data.columns=["experimentrun", "type", "pos", "total_success", "total_hurt", "steps"]
 
         data[['experiment', 'run']] = data.experimentrun.str.split("-TD_", expand=True, )
@@ -78,7 +78,7 @@ class PlotData:
             plt.clf()
 
 
-analysis = { 'h_foraging-TD':  ["foraging-TD", "h_foraging-TD"] }
+analysis = { 'h_foraging-TD':  ["ih_foraging-TD", "h_foraging-TD"] }
 
 runs = range(1, 21+1)
 for anal in analysis:

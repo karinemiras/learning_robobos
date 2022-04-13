@@ -45,7 +45,7 @@ def extract_info(experiment):
 ###
 config = Config()
 config = config.parser.parse_args()
-config.robot_port = 19997
+config.robot_port = 20000#19997
 config.train_or_test = 'test'
 
 config.sim_hard = 'sim'
@@ -68,14 +68,10 @@ if tests_type == 'choice':
 else:
 
     exp = config.experiment_name
-    if exp[0] == 'h':
-        aux_str = exp.split('_')
-        experiment = aux_str[0]+'_'+aux_str[1]
-        run = aux_str[2]
-    else:
-        aux_str = exp.split('_')
-        experiment = aux_str[0]
-        run = aux_str[1]
+
+    aux_str = exp.split('_')
+    experiment = aux_str[0]+'_'+aux_str[1]
+    run = aux_str[2]
 
     full_data_agreg = pd.read_csv(f'experiments/anal/{experiment}_full_data.csv')
 

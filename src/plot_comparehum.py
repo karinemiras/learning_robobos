@@ -20,7 +20,7 @@ class PlotData:
         self.dir = 'experiments/anal/'
         self.measures = ['steps', 'total_success']
         self.measures_limits = [[100, 210],  [-0.5, 8]]
-        self.clrs = ['#FF3333', '#006600']
+        self.clrs = None
 
         plt.style.use('classic')
 
@@ -30,6 +30,7 @@ class PlotData:
             self.full_data_agreg[experiment] = pd.read_csv(f'{self.dir}{experiment}_full_data.csv')
             pprint.pprint( self.full_data_agreg)
 
+        # from foraging-TD_best_checkpoints.csv
         best_stages = [28,33,12,21,30,22,30,27,15,26,35,34,29,20,19,33,32,18,15,20,14]
 
         for idx_measure, measure in enumerate(self.measures):
@@ -41,8 +42,10 @@ class PlotData:
 
                 if run not in [1, 2, 3, 6, 7, 8, 9, 10, 11, 13, 14]:
                     exps = ['foraging-TD']
+                    self.clrs = ['#000099']
                 else:
-                    exps = self.experiments
+                    exps = ["h_foraging-TD", "ih_foraging-TD"]
+                    self.clrs = ['#006600', '#FF3333']
 
                 for idx_experiment, experiment in enumerate(exps):
 
@@ -70,18 +73,22 @@ class PlotData:
 
         plt.clf()
 
-        data = pd.read_csv(f'{self.dir}final_tests_sim2.txt', sep="\t", header=None)
+        data = pd.read_csv(f'{self.dir}/final_tests_sim.txt', sep="\t", header=None)
         data.columns=["experimentrun", "type", "pos", "total_success", "total_hurt", "steps"]
 
         data[['experiment', 'run']] = data.experimentrun.str.split("-TD_", expand=True, )
 
-        tests_combinations = [('h_foraging', 'foraging')]
+        tests_combinations = [('h_foraging', 'ih_foraging')]
 
         for run in self.runs:
-
             exp_run = data[data['run'] == str(run)]
+
             if run not in [1, 2, 3, 6, 7, 8, 9, 10, 11, 13, 14]:
                 exp_run = exp_run[exp_run['experiment'] == 'foraging']
+                self.clrs = ['#000099']
+            else:
+                exp_run = exp_run[(exp_run['experiment'] == 'h_foraging') | (exp_run['experiment'] == 'ih_foraging')]
+                self.clrs = ['#006600', '#FF3333']
 
             exp_run = exp_run.sort_values(by=['experiment'])
             pprint.pprint(exp_run)
@@ -113,7 +120,7 @@ class PlotData:
                 plt.clf()
 
 
-analysis = { 'h_foraging-TD':  ["foraging-TD", "h_foraging-TD"] }
+analysis = { 'h_foraging-TD':  ["foraging-TD", "h_foraging-TD",  "ih_foraging-TD"] }
 
 runs = range(1, 21+1)
 for anal in analysis:

@@ -89,7 +89,8 @@ class PlotData:
 
 
 #analysis = {  'foraging-TD':  ["foraging-TD"] }
-analysis = {  'h_foraging-TD':  ["h_foraging-TD"] }
+#analysis = {  'h_foraging-TD':  ["h_foraging-TD"] }
+analysis = {  'ih_foraging-TD':  ["ih_foraging-TD"] }
 
 runs = range(1, 21+1)
 for anal in analysis:

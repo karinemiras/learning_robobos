@@ -19,17 +19,22 @@ class PlotData:
 
         full_data_agreg = pd.read_csv(f'{self.dir}anal/{self.experiment}_full_data.csv')
 
+        # version with active human
         out_file = open(f'experiments/run_human_experiments.txt', "w")
+       
         for run in self.runs:
             exp_run = full_data_agreg[
                 (full_data_agreg['experiment'] == experiment) & (full_data_agreg['run'] == int(run))]
             exp_run = exp_run[(exp_run['total_success'] == exp_run["total_success"].max())]
-            exp_run = exp_run[exp_run['total_hurt'] == exp_run["total_hurt"].min()]
             exp_run = exp_run[exp_run['steps'] == exp_run["steps"].min()]
             exp_run = exp_run[exp_run['checkpoint'] == exp_run["checkpoint"].max()]
             print(exp_run)
 
+            # version with active human
             experiment_name_new = f"h_{experiment}_{run}"
+            # version with inactive human
+            experiment_name_new = f"ih_{experiment}_{run}"
+
             os.mkdir(f'{self.dir}{experiment_name_new}')
 
             for file in glob.glob(f'{self.dir}{experiment}_{run}/*'):

@@ -115,7 +115,7 @@ class ExperimentManager:
             print(f'   food: {self.env.total_success} hurt: {self.env.total_hurt} steps: {self.env.current_step}')
 
         if self.log_food_print:
-            file = open(f'experiments/final_tests.txt', 'a')
+            file = open(f'experiments/anal/final_tests_sim.txt', 'a')
             file.write(f'{self.config.experiment_name}\t{self.config.sim_hard}\t{self.config.pos}\t{self.env.total_success}\t{self.env.total_hurt}\t {self.env.current_step}\n')
             file.close()
 
