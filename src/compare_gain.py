@@ -34,20 +34,21 @@ class PlotData:
         data[['experiment', 'run']] = data.experimentrun.str.split("-TD_", expand=True, )
 
         data = data[data.run.isin(['1', '2', '3', '6', '7', '8', '9', '10', '11', '13', '14'])]
-        pprint.pprint(data)
+        #pprint.pprint(data)
 
         data_ag = data.groupby(['experiment', 'run']).agg(
             steps=('steps', 'mean'),
             total_success=('total_success', 'mean')
         ).reset_index()
-        pprint.pprint(data_ag)
 
+        data_ag = data_ag[(data_ag['experiment'] == 'h_foraging') | (data_ag['experiment'] == 'ih_foraging')]
         data_ag2 = data_ag.groupby(['experiment']).agg(
             steps=('steps', 'mean'),
             steps_std=('steps', 'std'),
             total_success=('total_success', 'mean'),
             total_success_std=('total_success', 'std')
         ).reset_index()
+        pprint.pprint(data_ag)
         pprint.pprint(data_ag2)
 
         for idx_measure, measure in enumerate(self.measures):
@@ -62,10 +63,9 @@ class PlotData:
             try:
 
                 add_stat_annotation(plot, data=data, x='experiment', y=measure,
-                                    box_pairs=[('foraging', 'h_foraging')],
+                                    box_pairs=[('h_foraging', 'ih_foraging')],
                                     comparisons_correction=None,
-                                    test='Wilcoxon', text_format='star', fontsize='xx-large', loc='inside',
-                                    verbose=1)
+                                    test='Wilcoxon', text_format='star', fontsize='xx-large', loc='inside', verbose=1)
             except Exception as error:
                 print(error)
 

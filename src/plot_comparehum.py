@@ -19,7 +19,7 @@ class PlotData:
 
         self.dir = 'experiments/anal/'
         self.measures = ['steps', 'total_success']
-        self.measures_limits = [[100, 210],  [-0.5, 8]]
+        self.measures_limits = [[59, 210],  [-0.5, 8]]
         self.clrs = None
 
         plt.style.use('classic')

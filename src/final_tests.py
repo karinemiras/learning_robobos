@@ -41,11 +41,11 @@ def extract_info(experiment):
 
     return load, env
 
-
+# ps: all final tests run on mac os
 ###
 config = Config()
 config = config.parser.parse_args()
-config.robot_port = 20000#19997
+config.robot_port = 19997
 config.train_or_test = 'test'
 
 config.sim_hard = 'sim'
